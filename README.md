@@ -1,4 +1,3 @@
-#Readme
 This is the analysis pipeline for use with dada2 processed output 
 you need the following. 
 1) seqtab_output from dada2

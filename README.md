@@ -12,3 +12,8 @@ The output from this pipeline is
  - taxonomy plots
 3) statistical analysis
 4) summary plots
+
+Processing of 16S sequences
+1) dada2_16S_processing.pbs
+calls:
+2) dada2_version2.R

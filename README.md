@@ -13,6 +13,7 @@ The output from this pipeline is
 3) statistical analysis
 4) summary plots
 
+
 Processing of 16S sequences
 1) dada2_16S_processing.pbs
 calls:

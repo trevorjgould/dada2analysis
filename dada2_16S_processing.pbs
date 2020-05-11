@@ -1,11 +1,11 @@
 #!/bin/bash -l
-#PBS -l nodes=1:ppn=24,walltime=12:00:00,mem=60gb
+#PBS -l nodes=1:ppn=8,walltime=8:00:00,mem=20gb
 #PBS -q small
 #PBS -m abe
 #PBS -W group_list=umii
 #PBS -A umii
-#PBS -o /panfs/roc/scratch/goul0109/pragman1/
-#PBS -e /panfs/roc/scratch/goul0109/pragman1/
-cd /panfs/roc/scratch/goul0109/pragman1/16S/02_filtered/
+#PBS -o /panfs/roc/scratch/goul0109/
+#PBS -e /panfs/roc/scratch/goul0109/
+cd /panfs/roc/scratch/goul0109/dunnearh/16S/
 module load R/3.6.0
-Rscript /panfs/roc/scratch/goul0109/pragman1/dada2/dada2_version3.R
+Rscript /panfs/roc/scratch/goul0109/dunnearh/dada2_pipeline/dada2_version3.R

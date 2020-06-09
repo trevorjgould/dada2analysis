@@ -28,55 +28,19 @@ kelly_colors <- c("plum4", "darkorange1", "firebrick", "gold2", "burlywood3", "g
 
 ```{r}
 # input tables
-inputtable <- readRDS('processing/seqtab_nochim.rds')
+inputtable <- readRDS('seqtab_nochim.rds')
+# if sequences have -trimmed on them
 #m1 <- do.call(rbind, strsplit(rownames(inputtable), '-'))
 #row.names(inputtable) <- m1[,1]
 #row.names(inputtable) <- gsub("-trimmed","", row.names(inputtable))
-metadata <- read.table('processing/metadata.txt', sep = '\t', comment='', head=TRUE, row.names=1, check.names = FALSE)
+
+# input metadata
+metadata <- read.table('metadata.txt', sep = '\t', comment='', head=TRUE, row.names=1, check.names = FALSE)
+
 # IF NO METADATA
 #metadata <- as.data.frame(row.names(inputtable))
 #colnames(metadata) <- "Samples"
 #row.names(metadata) <- row.names(inputtable)
-#inputtable2 <- read.table("~/Documents/Projects/pragman_january_2020/real_inputtable.txt", sep = '\t', comment='', head=TRUE, row.names=1, check.names = FALSE)
-# input and split metadata and input file
-#metadata <- read.delim("~/Documents/Projects/pragman_january_2020/Pragman_jan_2020_first_pass/metadata.txt", row.names=1)
-OW_table <- subset(metadata, metadata$id3 == "OW")
-SPT_table <- subset(metadata, metadata$id3 == "SPT")
-
-#OW samples only
-OWcommon <- intersect(rownames(OW_table),rownames(inputtable))
-# get just the overlapping samples
-OWnewtable <- inputtable[OWcommon,, drop = FALSE]
-
-#SPT samples only
-SPTcommon <- intersect(rownames(SPT_table),rownames(inputtable))
-# get just the overlapping samples
-SPTnewtable <- inputtable[SPTcommon,, drop = FALSE]
-
-#important to keep all columns so they can go back together.
-# OW table has real samples for first 84 rows
-# OW table has blank samples for rows 85:96
-# SPT table has real samples for first 78 rows
-# SPT table has blank samples for rows 79:81
-# ratio of [mean blanks] / [mean real] < 1 = TRUE
-# keeps sequences with mean higher in real samples
-OWratio = (colMeans(OWnewtable[85:96,]) / colMeans(OWnewtable[1:84,]))<1
-SPTratio = (colMeans(SPTnewtable[79:81,]) / colMeans(SPTnewtable[1:78,]))<1
-# these remove columns that don't pass ratio filter
-OWratiotable = as.data.frame(OWnewtable[,(colMeans(OWnewtable[85:96,])/colMeans(OWnewtable[1:84,])<1)])
-SPTratiotable = as.data.frame(SPTnewtable[,(colMeans(SPTnewtable[79:81,])/colMeans(SPTnewtable[1:78,])<1)])
-SPTratiotable <- t(SPTratiotable)
-OWratiotable <- t(OWratiotable)
-out <- merge.data.frame(SPTratiotable,OWratiotable, by = "row.names", all = TRUE)
-#manually removing sequences here (chloroplast, human, etc.)
-inputtable <- read.table("processing/combined_taxa_blank_removed.txt", check.names = FALSE, row.names = 1, sep = "\t", header = TRUE)
-taxa <- inputtable[,163:168]
-inputtable <- inputtable[,1:162]
-
-write.table(OW_table, file = "OW_metadata_only.txt", sep="\t", quote = FALSE)
-write.table(OWratiotable, file = "OW_data_only.txt", sep="\t", quote = FALSE)
-write.table(SPT_table, file = "SPT_metadata_only.txt", sep="\t", quote = FALSE)
-write.table(SPTratiotable, file = "SPT_data_only.txt", sep="\t", quote = FALSE)
 ```
 
 ######Loading Plot Functions (not included in report)
@@ -128,31 +92,25 @@ dv <- function(j) {
 ##Beta Diversity Statistics
 ```{r}
 #Beta_Diversity_plot
-#metadata$count <- colSums(inputtable)
 fordist <- inputtable
 #samples as rows
 fordist <- t(fordist)
-#metadata <- read.delim("~/Documents/Projects/pragman_january_2020/Pragman_jan_2020_second_pass/newmap.txt", row.names=1)
-metadata <- read.delim("~/Documents/Projects/pragman_january_2020/Pragman_jan_2020_second_pass/newmap.txt", row.names=1)
-OWonly <- subset(metadata, metadata$site =="OW")
-SPTonly <- subset(metadata, metadata$site =="SPT")
 
 # run twice for OWonly and SPTonly
 #find common names
-common <- intersect(rownames(SPTonly),rownames(fordist))
+common <- intersect(rownames(metadata),rownames(fordist))
 # get just the overlapping samples
-newmap <- SPTonly[common,, drop = FALSE]
+newmap <- metadata[common,, drop = FALSE]
 dim(newmap)
 newtable <- fordist[common,, drop = FALSE]
 dim(newtable)
-# count of samples
-#newmap <- read.delim("~/Documents/Projects/pragman_january_2020/Pragman_jan_2020_second_pass/newmap.txt", row.names=1)
-
+# get counts
 newmap$count <- rowSums(newtable)
-SPT.newmap = newmap
+
 ###############
 # TO DECONTAM #
 ###############
+# 0 out NA cells
 newtable[is.na(newtable)] <- 0
 newtable <- t(newtable)
 ## clr + imputation function
@@ -169,17 +127,17 @@ clr_transform <- function(taxa){
   clr.taxa = clr.taxa[,!is.nan(colSums(clr.taxa))]
   return(clr.taxa)
 }
-# remove blank samples
-#newmap1 <- newmap[1:162,]
-#newtable1 <- newtable[,1:162]
 
 data.CLR <- clr_transform(newtable)
 data.CLR <- t(data.CLR)
-SPT.data.CLR = data.CLR
-SPT.newmap = newmap
+
+#PCA
 d.mes <- prcomp(data.CLR, scale = FALSE)
 var_explained = (d.mes$sdev^2/sum(d.mes$sdev^2))*100
 var_explained = format(round(var_explained, 2), nsmall = 2)
+
+#eigenvalues
+newmap$EV <- d.mes$sdev^2
 
 # jumping around now as this is from below. 
 #brayWmeta <- cbind(newmap,d.mes$x[,1:3])
@@ -192,7 +150,7 @@ lapply(colnames(newmap), cv)
 #lapply(colnames(newmap), dv)
 
 
-#manual
+#manual examples
 #id1
 PC1PC2 <- ggplot(brayWmeta, aes(PC1,PC2, colour = id1)) + geom_point(size=2) + theme_bw() + theme(legend.position = "bottom")
 PC1PC3 <- ggplot(brayWmeta, aes(PC1,PC3, colour = id1)) + geom_point(size=2) + theme_bw() + theme(legend.position = "bottom")
@@ -212,66 +170,12 @@ combinded_plot <- grid_arrange_shared_legend(PC1PC2, PC1PC3, ncol = 1)
 plottitle <- paste0("PCoA_PC12_PC13_id3.png")
 ggsave(combinded_plot, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
 
-
-PC1PC2 <- ggplot(brayWmeta, aes(PC1,PC2, colour = id3)) + geom_point(size=2) + geom_path(aes(group = id1), color = "black") + theme_bw() + theme(legend.position = "bottom")
-PC1PC3 <- ggplot(brayWmeta, aes(PC1,PC3, colour = id3)) + geom_point(size=2) + geom_path(aes(group = id1), color = "black") + theme_bw() + theme(legend.position = "bottom")
-combinded_plot <- grid_arrange_shared_legend(PC1PC2, PC1PC3, ncol = 1)
-plottitle <- paste0("PCoA_PC12_PC13_id1xid3.png")
-ggsave(combinded_plot, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
-
-
-
-
-#manual round 2
-#colnames(brayWmeta) <- c("Subject","Visit","Source","well","copy_number","Type","count","PC1","PC2","PC3")
-PC1PC2 <- ggplot(brayWmeta, aes(PC1,PC2)) + geom_point(aes(colour = group, shape = as.factor(visit)), size=2) + geom_path(aes(group = subject)) + theme_bw()+ scale_colour_manual(values = kelly_colors) + theme(legend.position = "bottom") + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + ggtitle("Sputum")+ scale_shape_discrete(name  ="visit")
-PC1PC3 <- ggplot(brayWmeta, aes(PC1,PC3)) + geom_point(aes(colour = group, shape = as.factor(visit)), size=2) + geom_path(aes(group = subject)) + theme_bw()+ scale_colour_manual(values = kelly_colors) + theme(legend.position = "bottom") + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + scale_shape_discrete(name  ="visit")
-combinded_plot <- grid_arrange_shared_legend(PC1PC2, PC1PC3, ncol = 1)
-plottitle <- paste0("PCoA_PC12_PC13type_visit_SPT.png")
-ggsave(combinded_plot, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
-
-PC1PC4 <- ggplot(brayWmeta, aes(PC1,PC4)) + geom_point(aes(colour = group, shape = as.factor(visit)), size=2) + geom_path(aes(group = subject)) + theme_bw()+ scale_colour_manual(values = kelly_colors) + theme(legend.position = "bottom") + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ylab(paste0("PC4: ",(var_explained[4]), "% variance")) + scale_shape_discrete(name  ="visit")
-ggsave(PC1PC4, file="PC1PC4_SPT.png", dpi=800, height = 5, width = 5, units = "in")
-
-adonis(data.CLR ~ group, data = newmap, method='eu')
-adonis(data.CLR ~ group+visit, data = newmap, method='eu')
-adonis(data.CLR ~ group*visit, data = newmap, method='eu')
-SPT.data.CLR = data.CLT
-
-
-#find common names
-common <- intersect(rownames(OWonly),rownames(fordist))
-newmap <- OWonly[common,, drop = FALSE]
-newtable <- fordist[common,, drop = FALSE]
-newmap$count <- rowSums(newtable)
-newtable[is.na(newtable)] <- 0
-newtable <- t(newtable)
-## clr + imputation function
-data.CLR <- clr_transform(newtable)
-data.CLR <- t(data.CLR)
-#OW 
-OW.data.CLR = data.CLR
-OW.newmap = newmap
-d.mes <- prcomp(data.CLR, scale = FALSE)
-var_explained = (d.mes$sdev^2/sum(d.mes$sdev^2))*100
-var_explained = format(round(var_explained, 2), nsmall = 2)
-brayWmeta <- cbind(newmap,d.mes$x[,1:4])
-#manual round 2
-#colnames(brayWmeta) <- c("Subject","Visit","Source","well","copy_number","Type","count","PC1","PC2","PC3")
-PC1PC2 <- ggplot(brayWmeta, aes(PC1,PC2)) + geom_point(aes(colour = group, shape = as.factor(visit)), size=2) + geom_path(aes(group = subject)) + theme_bw()+ scale_colour_manual(values = kelly_colors) + theme(legend.position = "bottom") + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + ggtitle("Oral Wash")+ scale_shape_discrete(name  ="visit")
-PC1PC3 <- ggplot(brayWmeta, aes(PC1,PC3)) + geom_point(aes(colour = group, shape = as.factor(visit)), size=2) + geom_path(aes(group = subject)) + theme_bw()+ scale_colour_manual(values = kelly_colors) + theme(legend.position = "bottom") + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + scale_shape_discrete(name  ="visit")
-combinded_plot <- grid_arrange_shared_legend(PC1PC2, PC1PC3, ncol = 1)
-plottitle <- paste0("PCoA_PC12_PC13type_visit_OW.png")
-ggsave(combinded_plot, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
-
-PC1PC4 <- ggplot(brayWmeta, aes(PC1,PC4)) + geom_point(aes(colour = group, shape = as.factor(visit)), size=2) + geom_path(aes(group = subject)) + theme_bw()+ scale_colour_manual(values = kelly_colors) + theme(legend.position = "bottom") + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ylab(paste0("PC4: ",(var_explained[4]), "% variance")) + scale_shape_discrete(name  ="visit")
-ggsave(PC1PC4, file="PC1PC4_OW.png", dpi=800, height = 5, width = 5, units = "in")
-
-adonis(data.CLR ~ group, data = newmap, method='eu')
-adonis(data.CLR ~ group+visit, data = newmap, method='eu')
-adonis(data.CLR ~ group*visit, data = newmap, method='eu')
-adonis(data.CLR ~ group/visit, data = newmap, method='eu')
-adonis(data.CLR ~ visit/group, data = newmap, method='eu')
+# adonis examples
+#adonis(data.CLR ~ group, data = newmap, method='eu')
+#adonis(data.CLR ~ group+visit, data = newmap, method='eu')
+#adonis(data.CLR ~ group*visit, data = newmap, method='eu')
+#adonis(data.CLR ~ group/visit, data = newmap, method='eu')
+#adonis(data.CLR ~ visit/group, data = newmap, method='eu')
 ```
 
 
@@ -279,7 +183,7 @@ adonis(data.CLR ~ visit/group, data = newmap, method='eu')
 
 ```{r}
 #alpha_diversity_stats
-newtable1 <- t(newtable1)
+newtable1 <- t(newtable)
 propdist <- sweep(newtable1, 1, rowSums(newtable1),'/')
 brayWmeta$shannon <- diversity(propdist, index = "shannon")
 brayWmeta$simpson <- diversity(propdist, index = "simpson")
@@ -297,53 +201,6 @@ Adiv <- function(x) {
     }
  # make plots   
 lapply(colnames(newmap), Adiv)
-
-
-#id1
-ShanD <- ggplot(brayWmeta, aes(id1, shannon, colour = id1))+ geom_boxplot(outlier.shape = NA) + geom_point(position=position_jitterdodge(),alpha=0.3)+ theme_bw() + theme(legend.position = "bottom") + ylab("Shannon") + theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank())
-SimD <- ggplot(brayWmeta, aes(id1, simpson, colour = id1))+ geom_boxplot(outlier.shape = NA) + geom_point(position=position_jitterdodge(),alpha=0.3)+ theme_bw() + theme(legend.position = "bottom") + ylab("Simpson") + theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank())
-SimI <- ggplot(brayWmeta, aes(id1, invsimpson, colour = id1))+ geom_boxplot(outlier.shape = NA) + geom_point(position=position_jitterdodge(),alpha=0.3)+ theme_bw() + theme(legend.position = "bottom") + ylab("Inverse_Simpson") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-    combinded_plot <- grid_arrange_shared_legend(ShanD,SimD,SimI, ncol = 1)
-    plottitle <- paste0("AlphaDiversity_plots_id1.png")
-    ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
-
-    
-    
-    
-#id2
-ShanD <- ggplot(brayWmeta, aes(id2, shannon, colour = id2))+ geom_boxplot(outlier.shape = NA) + geom_point(position=position_jitterdodge(),alpha=0.3)+ theme_bw() + theme(legend.position = "bottom") + ylab("Shannon") + theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank())
-SimD <- ggplot(brayWmeta, aes(id2, simpson, colour = id2))+ geom_boxplot(outlier.shape = NA) + geom_point(position=position_jitterdodge(),alpha=0.3)+ theme_bw() + theme(legend.position = "bottom") + ylab("Simpson") + theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank())
-SimI <- ggplot(brayWmeta, aes(id2, invsimpson, colour = id2))+ geom_boxplot(outlier.shape = NA) + geom_point(position=position_jitterdodge(),alpha=0.3)+ theme_bw() + theme(legend.position = "bottom") + ylab("Inverse_Simpson") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-    combinded_plot <- grid_arrange_shared_legend(ShanD,SimD,SimI, ncol = 1)
-    plottitle <- paste0("AlphaDiversity_plots_id2.png")
-    ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
-
-    
-    
-    
-  #id3  
-ShanD <- ggplot(brayWmeta, aes(id3, shannon, colour = id3))+ geom_boxplot(outlier.shape = NA) + geom_point(position=position_jitterdodge(),alpha=0.3)+ theme_bw() + theme(legend.position = "bottom") + ylab("Shannon") + theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank())
-SimD <- ggplot(brayWmeta, aes(id3, simpson, colour = id3))+ geom_boxplot(outlier.shape = NA) + geom_point(position=position_jitterdodge(),alpha=0.3)+ theme_bw() + theme(legend.position = "bottom") + ylab("Simpson") + theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank())
-SimI <- ggplot(brayWmeta, aes(id3, invsimpson, colour = id3))+ geom_boxplot(outlier.shape = NA) + geom_point(position=position_jitterdodge(),alpha=0.3)+ theme_bw() + theme(legend.position = "bottom") + ylab("Inverse_Simpson") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-    combinded_plot <- grid_arrange_shared_legend(ShanD,SimD,SimI, ncol = 1)
-    plottitle <- paste0("AlphaDiversity_plots_id3.png")
-    ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
-
-    #combined plot variables
-brayWmeta$id13 <- paste0(brayWmeta$id1,"-",brayWmeta$id3)
-brayWmeta$id12 <- paste0(brayWmeta$id1,"-",brayWmeta$id2)
-#combined plot1
-PC1PC2 <- ggplot(brayWmeta, aes(PC1,PC2, colour = id3)) + geom_path(aes(group = id12), color = "black") + geom_point(size=2) + theme_bw() + theme(legend.position = "bottom")
-PC1PC3 <- ggplot(brayWmeta, aes(PC1,PC3, colour = id3)) + geom_path(aes(group = id12), color = "black") + geom_point(size=2) + theme_bw() + theme(legend.position = "bottom")
-combinded_plot <- grid_arrange_shared_legend(PC1PC2, PC1PC3, ncol = 1)
-plottitle <- paste0("PCoA_PC12_PC13_id3xid12.png")
-ggsave(combinded_plot, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
-#combined plot2
-    PC1PC2 <- ggplot(brayWmeta, aes(PC1,PC2, colour = id2)) + geom_path(aes(group = id13), color = "black") + geom_point(size=2) + theme_bw() + theme(legend.position = "bottom")
-PC1PC3 <- ggplot(brayWmeta, aes(PC1,PC3, colour = id2)) + geom_path(aes(group = id13), color = "black") + geom_point(size=2) + theme_bw() + theme(legend.position = "bottom")
-combinded_plot <- grid_arrange_shared_legend(PC1PC2, PC1PC3, ncol = 1)
-plottitle <- paste0("PCoA_PC12_PC13_id2xid13.png")
-ggsave(combinded_plot, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
 ```
 
 
@@ -352,7 +209,7 @@ ggsave(combinded_plot, file=plottitle, dpi=800, height = 8, width = 6, units = "
 ```{r}
 #taxonomy_tables
 # files to use for taxa
-# newmap1
+# newmap
 # taxa
 # newtable1
 write.table(taxa, file = "taxa_blank_removed.txt", sep = "\t", quote = FALSE)
@@ -360,28 +217,8 @@ newtable1 <- t(newtable1)
 both <- cbind(newtable1,taxa)
 write.table(both, file = "combined_taxa_blank_removed.txt", sep = "\t", quote = FALSE)
 inputtable <- read.table("combined_taxa_blank_removed.txt", sep = "\t", check.names = FALSE)
-newmap <- newmap1
 newmap$id12 <- paste0(newmap$id1,"-",newmap$id2)
 newmap$id13 <- paste0(newmap$id1,"-",newmap$id3)
-
-#taxa <- readRDS("Pragman_jan_2020_first_pass/taxID.rds")
-
-#inputtable <- readRDS('seqtab_nochim.rds')
-#m1 <- do.call(rbind, strsplit(rownames(inputtable), '-'))
-#row.names(inputtable) <- m1[,1]
-
-#find common names
-#common <- intersect(rownames(metadata),rownames(inputtable))
-# get just the overlapping samples
-#newmap <- metadata[common,, drop = FALSE]
-#newtable <- inputtable[common,, drop = FALSE]
-
-#inputtable <- t(newtable)
-
-#both <- cbind(inputtable,taxa)
-#write.table(both, file = "combinded_table_taxa.txt", sep = "\t", quote = FALSE)
-# manually switch names,remove species column, remove spaces in genus column
-#inputtable <- read.table("combinded_table_taxa.txt", sep = "\t", check.names = FALSE)
 levels <- c("domain","phylum","class","order","family","genus")
 n <- (ncol(inputtable) - 6)
 Domain_table <- inputtable %>% select(domain,1:n)

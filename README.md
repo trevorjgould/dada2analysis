@@ -19,7 +19,8 @@ input | output
 sequence data | seqtab_nochim.rds
  . | taxID.rds
 
-**You need the following files **
+
+**You need the following files**
 1) seqtab output file from dada2
 2) metadata with sample names matching seqtab output **PROVIDED BY USER**
 3) taxonomy file with sequences matching seqtab output and taxa output from IDtaxa in R

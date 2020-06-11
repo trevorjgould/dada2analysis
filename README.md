@@ -38,16 +38,16 @@ output
 - combined_taxa.txt
 
 2) Make_Taxa_Tables.Rmd
-input: 	
-- Metadata_common.txt
-- combined_taxa.txt
-output:	
-- Kingdom_taxonomy.txt
-- Phylum_taxonomy.txt
-- Class_taxonomy.txt
-- Order_taxonomy.txt
-- Family_taxonomy.txt
-- Genus_taxonomy.txt
+- input: 	
+  - Metadata_common.txt
+  - combined_taxa.txt
+- output:	
+  - Kingdom_taxonomy.txt
+  - Phylum_taxonomy.txt
+  - Class_taxonomy.txt
+  - Order_taxonomy.txt
+  - Family_taxonomy.txt
+  - Genus_taxonomy.txt
 
 3) Taxonomy_Plots.Rmd
 input:

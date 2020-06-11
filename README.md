@@ -22,7 +22,7 @@
 input | output
 --------- | ---------
 sequence data | seqtab_nochim.rds
- _________ | taxID.rds
+ . | taxID.rds
 
 **Make_Tables.Rmd**
 input | output
@@ -36,10 +36,10 @@ input | output
 --------- | ---------
 Metadata_common.txt | Kingdom_taxonomy.txt
 combined_taxa.txt | Phylum_taxonomy.txt
-__________  | Class_taxonomy.txt
-__________  | Order_taxonomy.txt
-__________  | Family_taxonomy.txt
-__________  | Genus_taxonomy.txt
+.  | Class_taxonomy.txt
+.  | Order_taxonomy.txt
+.  | Family_taxonomy.txt
+.  | Genus_taxonomy.txt
 
 **Taxonomy_Plots.Rmd**
 input | output

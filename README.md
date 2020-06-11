@@ -19,14 +19,14 @@ calls:
 2) dada2_version2.R
 
 Run Dada2
- -input: 
-		- sequence data
- -output:
-		- seqtab_nochim.rds
-		- taxID.rds
+-input
+- sequence data
+-output
+- seqtab_nochim.rds
+- taxID.rds
 User
- -output: 
-		- metadata.txt
+-output 
+- metadata.txt
 
 1) Make_Tables.Rmd
  -input: 	

@@ -69,16 +69,15 @@ seqtab_nochim.rds | Sequence_table_common.rds
 metadata.txt | Metadata_common.txt
 taxID.rds | combined_taxa.txt
 
-
 **Make_Taxa_Tables.Rmd**
 input | output
 --------- | ---------
 Metadata_common.txt | Kingdom_taxonomy.txt
 combined_taxa.txt | Phylum_taxonomy.txt
- | Class_taxonomy.txt
- | Order_taxonomy.txt
- | Family_taxonomy.txt
- | Genus_taxonomy.txt
+  | Class_taxonomy.txt
+  | Order_taxonomy.txt
+  | Family_taxonomy.txt
+  | Genus_taxonomy.txt
 
 **Taxonomy_Plots.Rmd**
 input | output

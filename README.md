@@ -59,3 +59,34 @@
   - Metadata_common.txt
 - output:	
   - [Level]_taxonomy_other.png
+  
+  
+  
+  **Make_Tables.Rmd**
+input | output
+--------- | ---------
+seqtab_nochim.rds | Sequence_table_common.rds
+metadata.txt | Metadata_common.txt
+taxID.rds | combined_taxa.txt
+
+
+**Make_Taxa_Tables.Rmd**
+input | output
+--------- | ---------
+Metadata_common.txt | Kingdom_taxonomy.txt
+combined_taxa.txt | Phylum_taxonomy.txt
+ | Class_taxonomy.txt
+ | Order_taxonomy.txt
+ | Family_taxonomy.txt
+ | Genus_taxonomy.txt
+
+**Taxonomy_Plots.Rmd**
+input | output
+--------- | ---------
+Kingdom_taxonomy.txt | Kingdom_taxonomy_other.png
+Phylum_taxonomy.txt | Phylum_taxonomy_other.png
+Class_taxonomy.txt | Class_taxonomy_other.png
+Order_taxonomy.txt | Order_taxonomy_other.png
+Family_taxonomy.txt | Family_taxonomy_other.png
+Genus_taxonomy.txt | Genus_taxonomy_other.png
+Metadata_common.txt | 

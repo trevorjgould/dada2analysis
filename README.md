@@ -18,3 +18,39 @@ Processing of 16S sequences
 1) dada2_16S_processing.pbs
 calls:
 2) dada2_version2.R
+
+
+Run Dada2
+	input: sequences
+	output: "seqtab_nochim.rds"
+			"taxID.rds"
+User
+	output: "metadata.txt"
+
+Make_Tables.Rmd
+	input: 	"seqtab_nochim.rds"
+			"metadata.txt"
+			"taxID.rds"
+	output:	"Sequence_table_common.rds"
+			"Metadata_common.txt"
+			"combined_taxa.txt"
+
+Make_Taxa_Tables.Rmd
+	input: 	"Metadata_common.txt"
+			"combined_taxa.txt"
+	output:	"Kingdom_taxonomy.txt"
+			"Phylum_taxonomy.txt"
+			"Class_taxonomy.txt"
+			"Order_taxonomy.txt"
+			"Family_taxonomy.txt"
+			"Genus_taxonomy.txt"
+
+Taxonomy_Plots.Rmd
+	input:	"Kingdom_taxonomy.txt"
+			"Phylum_taxonomy.txt"
+			"Class_taxonomy.txt"
+			"Order_taxonomy.txt"
+			"Family_taxonomy.txt"
+			"Genus_taxonomy.txt"
+			"proportional_diversity_stats.txt"
+	output:	"[Level]_taxonomy_other.png"

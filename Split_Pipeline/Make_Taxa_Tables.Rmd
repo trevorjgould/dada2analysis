@@ -24,7 +24,7 @@ library(tidyr)
 # metadata table
 metadata <- read.table("Metadata_common.txt")
 # taxa
-inputtable <- read.table("combined_taxa.txt", sep = "\t", check.names = FALSE)
+inputtable <- read.table("combined_sequences_taxa.txt", sep = "\t", check.names = FALSE)
 
 #make split taxa tables
 levels <- c("domain","phylum","class","order","family","genus")

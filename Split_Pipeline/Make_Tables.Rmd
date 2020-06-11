@@ -34,5 +34,5 @@ newtable1 <- t(newtable)
 taxa <- readRDS("taxID.rds")
 both <- cbind(newtable1,taxa)
 #save to file
-write.table(both, file = "combined_taxa_blank_removed.txt", sep = "\t", quote = FALSE)
+write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE)
 ```

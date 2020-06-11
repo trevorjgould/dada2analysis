@@ -13,38 +13,36 @@ The output from this pipeline is
 3) statistical analysis
 4) summary plots
 
-
 Processing of 16S sequences
 1) dada2_16S_processing.pbs
 calls:
 2) dada2_version2.R
 
-
 Run Dada2
-	- input: 
+ -input: 
 		- sequence data
-	- output:
+ -output:
 		- seqtab_nochim.rds
 		- taxID.rds
 User
-	- output: 
+ -output: 
 		- metadata.txt
 
-Make_Tables.Rmd
-	- input: 	
+1) Make_Tables.Rmd
+ -input: 	
 		- seqtab_nochim.rds
 		- metadata.txt
 		- taxID.rds
-	- output:	
+ -output:	
 		- Sequence_table_common.rds
 		- Metadata_common.txt
 		- combined_taxa.txt
 
-Make_Taxa_Tables.Rmd
-	- input: 	
+2) Make_Taxa_Tables.Rmd
+ -input: 	
 		- Metadata_common.txt
 		- combined_taxa.txt
-	- output:	
+ -output:	
 		- Kingdom_taxonomy.txt
 		- Phylum_taxonomy.txt
 		- Class_taxonomy.txt
@@ -52,14 +50,14 @@ Make_Taxa_Tables.Rmd
 		- Family_taxonomy.txt
 		- Genus_taxonomy.txt
 
-Taxonomy_Plots.Rmd
-	- input:
+3) Taxonomy_Plots.Rmd
+ -input:
 		- Kingdom_taxonomy.txt
 		- Phylum_taxonomy.txt
 		- Class_taxonomy.txt
 		- Order_taxonomy.txt
 		- Family_taxonomy.txt
 		- Genus_taxonomy.txt
-	proportional_diversity_stats.txt
-	- output:	
+	-proportional_diversity_stats.txt
+ -output:	
 		- [Level]_taxonomy_other.png

@@ -62,7 +62,7 @@
   
   
   
-  **Make_Tables.Rmd**
+**Make_Tables.Rmd**
 input | output
 --------- | ---------
 seqtab_nochim.rds | Sequence_table_common.rds
@@ -74,10 +74,10 @@ input | output
 --------- | ---------
 Metadata_common.txt | Kingdom_taxonomy.txt
 combined_taxa.txt | Phylum_taxonomy.txt
-  | Class_taxonomy.txt
-  | Order_taxonomy.txt
-  | Family_taxonomy.txt
-  | Genus_taxonomy.txt
+__  | Class_taxonomy.txt
+__  | Order_taxonomy.txt
+__  | Family_taxonomy.txt
+__  | Genus_taxonomy.txt
 
 **Taxonomy_Plots.Rmd**
 input | output

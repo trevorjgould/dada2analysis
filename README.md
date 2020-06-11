@@ -19,45 +19,44 @@ calls:
 2) dada2_version2.R
 
 Run Dada2
--input
+input
 - sequence data
--output
+output
 - seqtab_nochim.rds
 - taxID.rds
-User
--output 
+User Provided
 - metadata.txt
 
 1) Make_Tables.Rmd
- -input: 	
-		- seqtab_nochim.rds
-		- metadata.txt
-		- taxID.rds
- -output:	
-		- Sequence_table_common.rds
-		- Metadata_common.txt
-		- combined_taxa.txt
+input
+- seqtab_nochim.rds
+- metadata.txt
+- taxID.rds
+output
+- Sequence_table_common.rds
+- Metadata_common.txt
+- combined_taxa.txt
 
 2) Make_Taxa_Tables.Rmd
- -input: 	
-		- Metadata_common.txt
-		- combined_taxa.txt
- -output:	
-		- Kingdom_taxonomy.txt
-		- Phylum_taxonomy.txt
-		- Class_taxonomy.txt
-		- Order_taxonomy.txt
-		- Family_taxonomy.txt
-		- Genus_taxonomy.txt
+input: 	
+- Metadata_common.txt
+- combined_taxa.txt
+output:	
+- Kingdom_taxonomy.txt
+- Phylum_taxonomy.txt
+- Class_taxonomy.txt
+- Order_taxonomy.txt
+- Family_taxonomy.txt
+- Genus_taxonomy.txt
 
 3) Taxonomy_Plots.Rmd
- -input:
-		- Kingdom_taxonomy.txt
-		- Phylum_taxonomy.txt
-		- Class_taxonomy.txt
-		- Order_taxonomy.txt
-		- Family_taxonomy.txt
-		- Genus_taxonomy.txt
-	-proportional_diversity_stats.txt
- -output:	
-		- [Level]_taxonomy_other.png
+input:
+- Kingdom_taxonomy.txt
+- Phylum_taxonomy.txt
+- Class_taxonomy.txt
+- Order_taxonomy.txt
+- Family_taxonomy.txt
+- Genus_taxonomy.txt
+- proportional_diversity_stats.txt
+output:	
+- [Level]_taxonomy_other.png

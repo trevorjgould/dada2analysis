@@ -1,4 +1,4 @@
-This is the analysis pipeline for use with dada2 processed output 
+**This is the analysis pipeline for use with dada2 processed output**
 you need the following. 
 1) seqtab_output from dada2
 2) metadata with sample names matching seqtab output
@@ -14,9 +14,8 @@ you need the following.
 4) summary plots
 
 **Processing of 16S sequences**
-1) dada2_16S_processing.pbs
-calls:
-2) dada2_version2.R
+  - dada2_16S_processing.pbs > dada2_version2.R
+
 
 
 **Run Dada2**

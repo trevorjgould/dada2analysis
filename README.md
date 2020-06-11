@@ -1,5 +1,4 @@
-**This is the analysis pipeline for use with dada2 processed output**
-you need the following. 
+**This is the analysis pipeline for use with dada2 processed output you need the following:** 
 1) seqtab_output from dada2
 2) metadata with sample names matching seqtab output
 3) taxonomy file with sequences matching seqtab output and taxa output from IDtaxa in R
@@ -57,6 +56,6 @@ you need the following.
   - Order_taxonomy.txt
   - Family_taxonomy.txt
   - Genus_taxonomy.txt
-  - proportional_diversity_stats.txt
+  - Metadata_common.txt
 - output:	
   - [Level]_taxonomy_other.png

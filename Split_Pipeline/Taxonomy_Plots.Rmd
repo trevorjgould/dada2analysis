@@ -17,7 +17,7 @@ library(reshape2)
 
 ```{r}
 # read in tables
-brayWmeta <- read.table("proportional_diversity_stats.txt", sep = "\t", check.names = FALSE)
+meta <- read.table("Metadata_common.txt", sep = "\t", check.names = FALSE)
 KT <- read.table(KT, file = "Kingdom_taxonomy.txt", sep = "\t", check.names = FALSE)
 PT <- read.table(PT, file = "Phylum_taxonomy.txt", sep = "\t", check.names = FALSE)
 CT <- read.table(CT, file = "Class_taxonomy.txt", sep = "\t", check.names = FALSE)
@@ -66,9 +66,9 @@ if(a!=b){
  cat("taxa do not sum to 100. there is something wrong\n") 
 }
 }
-both <- cbind(XT_other,brayWmeta)
-both$Samples <- row.names(brayWmeta)
-melted <- melt(both, id.vars = c(colnames(brayWmeta)))
+both <- cbind(XT_other,meta)
+both$Samples <- row.names(meta)
+melted <- melt(both, id.vars = c(colnames(meta)))
 p <- ggplot(melted, aes(Samples, (value*100), fill = variable)) + geom_bar(stat='identity')+ ylab("Percent") + theme_bw() + theme(legend.position = "bottom") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + scale_fill_discrete(name = name_label)
 
 #V1p <- p + facet_grid(.~V1, scales = "free_x")

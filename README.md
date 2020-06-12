@@ -1,3 +1,4 @@
+![logo](/images/Picture1.png)
 **The output from this pipeline is:**
 1) combined tables for use in analysis
 2) plots

@@ -54,3 +54,9 @@ Order_taxonomy.txt | Order_taxonomy_other.png
 Family_taxonomy.txt | Family_taxonomy_other.png
 Genus_taxonomy.txt | Genus_taxonomy_other.png
 Metadata_common.txt | 
+
+**Diversity.Rmd**
+input | output
+--------- | ---------
+Sequence_table_common.rds | proportional_diversity_stats.txt
+Metadata_common.txt | 

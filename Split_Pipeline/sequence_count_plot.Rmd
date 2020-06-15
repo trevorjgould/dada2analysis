@@ -1,0 +1,22 @@
+---
+title: "Marker Gene Survey diversity stats"
+author: "Trevor_Gould"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+---
+![](/Users/goul0109/Documents/UMII-full-banner.png)
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+
+# sequence count plot
+sequence_count_table <- read.delim("final_sequence_count.txt", row.names=1)
+library(reshape2)
+library(ggplot2)
+sequence_count_table$Samples <- row.names(sequence_count_table)
+melted <- melt(sequence_count_table)
+p <- ggplot(melted, aes(variable,value, fill = variable)) + theme_bw() + geom_boxplot() + geom_point() + geom_boxplot(alpha = 0.5) + geom_path(aes(group = Samples)) + xlab("Pipeline Stage") + ylab("Sequences") + theme(legend.position="none")
+ggsave(p, file = "sequence_count_plot.png", dpi = 800, width = 6, height = 6, units = "in")
+
+```

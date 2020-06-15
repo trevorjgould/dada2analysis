@@ -60,3 +60,13 @@ input | output
 --------- | ---------
 Sequence_table_common.rds | proportional_diversity_stats.txt
 Metadata_common.txt | 
+
+**Diversity_plots_.Rmd**
+input | output
+--------- | ---------
+proportional_diversity_stats.txt | 
+
+**Sequence_coun_plot.Rmd**
+input | output
+--------- | ---------
+final_sequence_count.txt | sequence_count_plot.png

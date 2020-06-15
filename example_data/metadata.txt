@@ -1,0 +1,11 @@
+Samples	Group
+AK10	Test
+AK1	Control
+AK2	Control
+AK3	Control
+AK4	Control
+AK5	Control
+AK6	Test
+AK7	Test
+AK8	Test
+AK9	Test

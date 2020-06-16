@@ -1,21 +1,12 @@
----
+
 title: "Marker Gene Survey Taxonomy Plots"
 author: "Trevor_Gould"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  pdf_document: default
-  html_document: default
----
-![](/Users/goul0109/Documents/UMII-full-banner.png)
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 
 #load libraries
 library(ggplot2)
 library(reshape2)
-```
 
-```{r}
 # read in tables
 meta <- read.table("Metadata_common.txt", sep = "\t", check.names = FALSE)
 KT <- read.table(KT, file = "Kingdom_taxonomy.txt", sep = "\t", check.names = FALSE)
@@ -24,9 +15,7 @@ CT <- read.table(CT, file = "Class_taxonomy.txt", sep = "\t", check.names = FALS
 OT <- read.table(OT, file = "Order_taxonomy.txt", sep = "\t", check.names = FALSE)
 FT <- read.table(FT, file = "Family_taxonomy.txt", sep = "\t", check.names = FALSE)
 GT <- read.table(GT, file = "Genus_taxonomy.txt", sep = "\t", check.names = FALSE)
-```
 
-```{r}
 # Here we are taking the taxonomy tables created above 
 # taxa with less than a sum of 0.1 total proportion over all samples are merged
 # into a column of OTHER with the NA column if it is present. 
@@ -83,5 +72,3 @@ p <- ggplot(melted, aes(Samples, (value*100), fill = variable)) + geom_bar(stat=
 filename <- paste0(name_label,"_taxonomy_other.png")
 ggsave(p, file = filename, dpi  = 800, width = 10, height = 8, units = "in")
 }
-```
-

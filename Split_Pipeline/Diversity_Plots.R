@@ -1,12 +1,8 @@
----
+
 title: "diversity plots"
 author: "Trevor_Gould"
 date: "6/15/2020"
-output: html_document
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(reshape2)
 library(gridExtra)
@@ -16,10 +12,7 @@ kelly_colors <- c("plum4", "darkorange1", "firebrick", "gold2", "burlywood3", "g
 # read in files
 brayWmeta <- readRDS('proportional_diversity_stats.txt')
 newmap <- read.table("Metadata_common.txt")
-```
 
-
-```{r}
 # functions
 grid_arrange_shared_legend <- function(...) {
     plots <- list(...)
@@ -55,4 +48,3 @@ bdiv <- function(j) {
  # make plots   
 lapply(colnames(newmap), Adiv)
 lapply(colnames(newmap), bdiv)
-```

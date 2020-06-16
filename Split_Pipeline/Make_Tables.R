@@ -1,15 +1,7 @@
----
+
 title: "Marker Gene Survey Preparing Tables"
 author: "Trevor_Gould"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  pdf_document: default
-  html_document: default
----
-![](/Users/goul0109/Documents/UMII-full-banner.png)
-```{r setup, include=FALSE}
-#Setup and Functions
-knitr::opts_chunk$set(echo = TRUE)
 
 #load libraries
 #library()
@@ -35,4 +27,3 @@ taxa <- readRDS("taxID.rds")
 both <- cbind(newtable1,taxa)
 #save to file
 write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE)
-```

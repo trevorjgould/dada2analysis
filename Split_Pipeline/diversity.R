@@ -1,15 +1,7 @@
----
 title: "Marker Gene Survey diversity stats"
 author: "Trevor_Gould"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  pdf_document: default
-  html_document: default
----
-![](/Users/goul0109/Documents/UMII-full-banner.png)
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library(vegan)
 library(plyr)
 library(dplyr)
@@ -17,10 +9,9 @@ library(tidyr)
 # metadata table
 newmap <- read.table("Metadata_common.txt")
 newtable <- read.table("Sequence_table_common.rds")
-```
 
 
-```{r}
+
 # get counts
 newmap$count <- rowSums(newtable)
 
@@ -60,5 +51,3 @@ brayWmeta$shannon <- diversity(propdist, index = "shannon")
 brayWmeta$simpson <- diversity(propdist, index = "simpson")
 brayWmeta$invsimpson <- diversity(propdist, index = "invsimpson")
 write.table(brayWmeta, file="proportional_diversity_stats.txt", quote = FALSE)
-```
-

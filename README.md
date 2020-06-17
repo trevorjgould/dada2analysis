@@ -26,7 +26,7 @@ sequence data | seqtab_nochim.rds
 2) metadata with sample names matching seqtab output **PROVIDED BY USER**
 3) taxonomy file with sequences matching seqtab output and taxa output from IDtaxa in R
 
-**Make_Tables.Rmd**
+**Make_Tables.R**
 input | output
 --------- | ---------
 seqtab_nochim.rds | Sequence_table_common.rds
@@ -34,7 +34,7 @@ metadata.txt | Metadata_common.txt
 taxID.rds | combined_taxa.txt
 
 
-**Make_Taxa_Tables.Rmd**
+**Make_Taxa_Tables.R**
 input | output
 --------- | ---------
 Metadata_common.txt | Kingdom_taxonomy.txt
@@ -44,7 +44,7 @@ combined_taxa.txt | Phylum_taxonomy.txt
 .  | Family_taxonomy.txt
 .  | Genus_taxonomy.txt
 
-**Taxonomy_Plots.Rmd**
+**Taxonomy_Plots.R**
 input | output
 --------- | ---------
 Kingdom_taxonomy.txt | Kingdom_taxonomy_other.png
@@ -55,18 +55,18 @@ Family_taxonomy.txt | Family_taxonomy_other.png
 Genus_taxonomy.txt | Genus_taxonomy_other.png
 Metadata_common.txt | 
 
-**Diversity.Rmd**
+**Diversity.R**
 input | output
 --------- | ---------
 Sequence_table_common.rds | proportional_diversity_stats.txt
 Metadata_common.txt | 
 
-**Diversity_plots_.Rmd**
+**Diversity_plots_.R**
 input | output
 --------- | ---------
 proportional_diversity_stats.txt | 
 
-**Sequence_coun_plot.Rmd**
+**Sequence_coun_plot.R**
 input | output
 --------- | ---------
 final_sequence_count.txt | sequence_count_plot.png

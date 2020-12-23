@@ -1,28 +1,31 @@
 # dada2 Version 2
 
 #load modules here
-#module load cutadapt
+# module load cutadapt
 
 # remove adapters
-#mkdir 01_adapter
-#for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 150 -a TATGGTAATTGTGTGNCAGCNGCCGCGGTAA -g #ATTAGANACCCNNGTAGTCCGGCTGGCTGACT -A AGTCAGCCAGCCGGACTACNVGGGTNTCTAAT -o 01_adapter/${i//_R1_001.fastq.gz/-cut_R1_001.fastq.gz} -#p 01_adapter/${i//_R1_001.fastq.gz/-cut_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > 01_adapter/cutadapt.${i//#_R1_001.fastq.gz/.log.txt}" #>> run_cutadapt.sh; done
-#chmod +x run_cutadapt.sh
-#./run_cutadapt.sh
-#cd 01_adapter    
-#mkdir 01_logs
-#mv *log.txt 01_logs
+mkdir 01_adapter
+for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 150 -a TATGGTAATTGTGTGNCAGCNGCCGCGGTAA -g ATTAGANACCCNNGTAGTCCGGCTGGCTGACT -A AGTCAGCCAGCCGGACTACNVGGGTNTCTAAT -o 01_adapter/${i//_R1_001.fastq.gz/-cut_R1_001.fastq.gz} -p 01_adapter/${i//_R1_001.fastq.gz/-cut_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > 01_adapter/cutadapt.${i//_R1_001.fastq.gz/.log.txt}" >> run_cutadapt.sh; done
+chmod +x run_cutadapt.sh
+./run_cutadapt.sh
+cd 01_adapter    
+mkdir 01_logs
+mv cutadapt* 01_logs
 #
-# remove primers V4
-#mkdir ../02_filtered  
-#for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g #GTGCCAGCMGCCGCGGTAA -G GGACTACHVGGGTWTCTAAT --discard-untrimmed -o ../02_filtered/${i//-cut_R1_001.fastq.gz/-#trimmed_R1_001.fastq.gz} -p ../02_filtered/${i//-cut_R1_001.fastq.gz/-trimmed_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} #> ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.sh; done
-#chmod +x run_cutadapt2.sh
-#./run_cutadapt2.sh
-#cd ../02_filtered/
-#mkdir 02_logs
-#mv *log.txt 02_logs
-#
+# remove primers
+mkdir ../02_filtered  
+#V4
+#for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g GGACTACHVGGGTWTCTAAT -G GGACTACHVGGGTWTCTAAT --discard-untrimmed -o ../02_filtered/${i//-cut_R1_001.fastq.gz/-trimmed_R1_001.fastq.gz} -p ../02_filtered/${i//-cut_R1_001.fastq.gz/-trimmed_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+#V3V4
+for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g AGAGTTTGATCMTGGCTCAG -G ATTACCGCGGCTGCTGG --discard-untrimmed -o ../02_filtered/${i//-cut_R1_001.fastq.gz/_R1_001.fastq.gz} -p ../02_filtered/${i//-cut_R1_001.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+chmod +x run_cutadapt2.cmd
+./run_cutadapt2.cmd
+cd ../02_filtered/
+mkdir 02_logs
+mv *log.txt 02_logs
+
 # DADA2
-#R
+R
 
 library(dada2)
 library(ggplot2)
@@ -32,8 +35,8 @@ library(ShortRead)
 path <- (".")
 list.files(path)
 # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
-fnFs <- sort(list.files(path, pattern="_R1_001.fastq", full.names = TRUE))
-fnRs <- sort(list.files(path, pattern="_R2_001.fastq", full.names = TRUE))
+fnFs <- sort(list.files(path, pattern="_R1_001.fastq.gz", full.names = TRUE))
+fnRs <- sort(list.files(path, pattern="_R2_001.fastq.gz", full.names = TRUE))
 # Extract sample names, assuming filenames have format: SAMPLENAME_XXX.fastq
 sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 
@@ -52,12 +55,12 @@ plotQualityProfile(fnRs)
 dev.off()
 
 # 16s
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(200,160), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(280,260), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
 head(out)
 
 # error models
-errF <- learnErrors(filtFs, multithread=8)
-errR <- learnErrors(filtRs, multithread=8)
+errF <- learnErrors(filtFs, multithread=8, randomize=TRUE)
+errR <- learnErrors(filtRs, multithread=8, randomize=TRUE)
 # plots
 pdf("error_model_forwards.pdf")
 plotErrors(errF, nominalQ=TRUE)
@@ -89,11 +92,9 @@ saveRDS(seqtab.nochim, "seqtab_nochim.rds")
 getN <- function(x) sum(getUniques(x))
 
   # making a little table
-summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
-               filtered=out[,2], dada_f=sapply(dadaFs, getN),
-               dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),
-               nonchim=rowSums(seqtab.nochim),
-               final_perc_reads_retained=round(rowSums(seqtab.nochim)/out[,1]*100, 1))
+summary_tab <- data.frame(row.names=sample.names, dada2_input=out[3:60,1],
+               filtered=out[3:60,2], dada_f=sapply(dadaFs, getN),
+               dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
 seqtab.nochim <- readRDS("seqtab_nochim.rds")
@@ -110,6 +111,9 @@ taxid <- t(sapply(ids, function(x) {
 }))
 colnames(taxid) <- ranks; rownames(taxid) <- getSequences(seqtab.nochim)
 saveRDS(taxid, file = "taxID.rds")
+
+genus.species <- assignSpecies(dna, "/home/umii/goul0109/silva_species_assignment_v138.fa.gz", allowMultiple=TRUE)
+write.table(genus.species, file = "species_assignments.txt", sep = "\t", quote=FALSE)
 quit("no") 
 
 

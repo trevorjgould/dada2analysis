@@ -1,5 +1,6 @@
 # dada2 Version 2
-
+# RUN IN DIRECTORY WITH ALL SEQUENCE FILES
+# THIS CODE FILE SHOULD BE IN SEPARATE DIRECTORY IN SAME PARENT DIRECTORY
 #load modules here
 # module load cutadapt
 
@@ -28,10 +29,6 @@ mv *log.txt 02_logs
 R
 
 library(dada2)
-library(ggplot2)
-#library(patchwork)
-library(DECIPHER)
-library(ShortRead)
 path <- (".")
 list.files(path)
 # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
@@ -45,14 +42,6 @@ filtFs <- file.path(path, "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
 filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
 names(filtFs) <- sample.names
 names(filtRs) <- sample.names
-
-# quality plots
-pdf("quality_forwards.pdf")
-plotQualityProfile(fnFs)
-dev.off()
-pdf("quality_reverse.pdf")
-plotQualityProfile(fnRs)
-dev.off()
 
 # 16s
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(280,260), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
@@ -98,22 +87,31 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[3:60,1],
 write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
 seqtab.nochim <- readRDS("seqtab_nochim.rds")
-dna <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
-load("/home/umii/goul0109/SILVA_SSU_r132_March2018.RData") # CHANGE TO THE PATH OF YOUR TRAINING SET
-ids <- IdTaxa(dna, trainingSet, strand="top", processors=NULL, verbose=FALSE) # use all processors
+
+#TAXONOMY
+seqs <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
+taxa <- assignTaxonomy(seqs, "../dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=8)
+taxa.plus <- addSpecies(taxa, "../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
+saveRDS(taxa.plus, file = "taxID.rds")
+
+
+#dna <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
+#load("/home/umii/goul0109/SILVA_SSU_r132_March2018.RData") # CHANGE TO THE PATH OF YOUR TRAINING SET
+#ids <- IdTaxa(dna, trainingSet, strand="top", processors=NULL, verbose=FALSE) # use all processors
+
 ranks <- c("domain", "phylum", "class", "order", "family", "genus", "species") # ranks of interest
 # Convert the output object of class "Taxa" to a matrix analogous to the output from assignTaxonomy
-taxid <- t(sapply(ids, function(x) {
+#taxid <- t(sapply(ids, function(x) {
         m <- match(ranks, x$rank)
         taxa <- x$taxon[m]
         taxa[startsWith(taxa, "unclassified_")] <- NA
         taxa
 }))
-colnames(taxid) <- ranks; rownames(taxid) <- getSequences(seqtab.nochim)
-saveRDS(taxid, file = "taxID.rds")
+#colnames(taxid) <- ranks; rownames(taxid) <- getSequences(seqtab.nochim)
+#saveRDS(taxid, file = "taxID.rds")
 
-genus.species <- assignSpecies(dna, "/home/umii/goul0109/silva_species_assignment_v138.fa.gz", allowMultiple=TRUE)
-write.table(genus.species, file = "species_assignments.txt", sep = "\t", quote=FALSE)
+#genus.species <- assignSpecies(dna, "/home/umii/goul0109/silva_species_assignment_v138.fa.gz", allowMultiple=TRUE)
+#write.table(genus.species, file = "species_assignments.txt", sep = "\t", quote=FALSE)
 quit("no") 
 
 

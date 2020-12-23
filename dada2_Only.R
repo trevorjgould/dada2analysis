@@ -1,0 +1,96 @@
+# dada2 Version 2
+# RUN IN DIRECTORY WITH ALL SEQUENCE FILES
+# THIS CODE FILE SHOULD BE IN SEPARATE DIRECTORY IN SAME PARENT DIRECTORY
+#load modules here
+# module load cutadapt
+
+# DADA2
+# R
+
+library(dada2)
+path <- (".")
+list.files(path)
+# Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
+fnFs <- sort(list.files(path, pattern="_R1_001.fastq.gz", full.names = TRUE))
+fnRs <- sort(list.files(path, pattern="_R2_001.fastq.gz", full.names = TRUE))
+# Extract sample names, assuming filenames have format: SAMPLENAME_XXX.fastq
+sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
+
+# Place filtered files in filtered/ subdirectory
+filtFs <- file.path(path, "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
+filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
+names(filtFs) <- sample.names
+names(filtRs) <- sample.names
+
+# 16s
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(280,260), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
+head(out)
+
+# error models
+errF <- learnErrors(filtFs, multithread=8, randomize=TRUE)
+errR <- learnErrors(filtRs, multithread=8, randomize=TRUE)
+# plots
+pdf("error_model_forwards.pdf")
+plotErrors(errF, nominalQ=TRUE)
+dev.off()
+pdf("error_model_reverse.pdf")
+plotErrors(errR, nominalQ=TRUE)
+dev.off()
+
+#dereplicate reads
+derep_forward <- derepFastq(filtFs, verbose=TRUE)
+names(derep_forward) <- sample.names # the sample names in these objects are initially the file names of the samples, this sets them to the sample names for the rest of the workflow
+derep_reverse <- derepFastq(filtRs, verbose=TRUE)
+names(derep_reverse) <- sample.names
+
+dadaFs <- dada(derep_forward, err=errF, multithread=4, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=4, pool="pseudo")
+
+merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=50)
+
+seqtab <- makeSequenceTable(merged_amplicons)
+dim(seqtab)
+saveRDS(seqtab, "seqtab.rds")
+
+seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
+dim(seqtab.nochim)
+saveRDS(seqtab.nochim, "seqtab_nochim.rds")
+
+  # set a little function
+getN <- function(x) sum(getUniques(x))
+
+  # making a little table
+summary_tab <- data.frame(row.names=sample.names, dada2_input=out[3:60,1],
+               filtered=out[3:60,2], dada_f=sapply(dadaFs, getN),
+               dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
+write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
+
+seqtab.nochim <- readRDS("seqtab_nochim.rds")
+
+#TAXONOMY
+seqs <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
+taxa <- assignTaxonomy(seqs, "../dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=8)
+taxa.plus <- addSpecies(taxa, "../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
+saveRDS(taxa.plus, file = "taxID.rds")
+
+
+#dna <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
+#load("/home/umii/goul0109/SILVA_SSU_r132_March2018.RData") # CHANGE TO THE PATH OF YOUR TRAINING SET
+#ids <- IdTaxa(dna, trainingSet, strand="top", processors=NULL, verbose=FALSE) # use all processors
+
+ranks <- c("domain", "phylum", "class", "order", "family", "genus", "species") # ranks of interest
+# Convert the output object of class "Taxa" to a matrix analogous to the output from assignTaxonomy
+#taxid <- t(sapply(ids, function(x) {
+        m <- match(ranks, x$rank)
+        taxa <- x$taxon[m]
+        taxa[startsWith(taxa, "unclassified_")] <- NA
+        taxa
+}))
+#colnames(taxid) <- ranks; rownames(taxid) <- getSequences(seqtab.nochim)
+#saveRDS(taxid, file = "taxID.rds")
+
+#genus.species <- assignSpecies(dna, "/home/umii/goul0109/silva_species_assignment_v138.fa.gz", allowMultiple=TRUE)
+#write.table(genus.species, file = "species_assignments.txt", sep = "\t", quote=FALSE)
+quit("no") 
+
+

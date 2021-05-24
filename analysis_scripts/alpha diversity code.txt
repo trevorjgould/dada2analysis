@@ -1,0 +1,14 @@
+#alpha_diversity_stats
+newtable <- outtab$newtable
+newmap <- outtab$newmap
+library(OTUtable)
+newmap$chao1 <- apply(newtable, 1, chao1)
+propdist <- sweep(newtable, 1, rowSums(newtable),'/')
+newmap$shannon <- vegan::diversity(propdist, index = "shannon")
+newmap$simpson <- vegan::diversity(propdist, index = "simpson")
+newmap$invsimpson <- vegan::diversity(propdist, index = "invsimpson")
+write.table(newmap, file="alpha_diversity_stats.txt", quote = FALSE)
+
+
+grep "written" adapter_logs.txt | awk -F '(' '{print $3}' | sed 's/)//g' | sed 's/%//g' | awk '{ total += $1 } END { print "mean percent retained after adapter removal: " total/NR }'
+grep "written" primer_logs.txt | awk -F '(' '{print $3}' | sed 's/)//g' | sed 's/%//g' | awk '{ total += $1 } END { print "mean percent retained after primer removal: " total/NR }'

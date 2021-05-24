@@ -14,7 +14,7 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
 # 16s
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(260,240), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=2)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(260,240), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=24)
 head(out)
 
 #dereplicate reads
@@ -24,11 +24,11 @@ derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
 # error models
-errF <- learnErrors(derep_forward, multithread=2, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=2, randomize=TRUE)
+errF <- learnErrors(derep_forward, multithread=24, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=24, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=4, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=4, pool="pseudo")
+dadaFs <- dada(derep_forward, err=errF, multithread=24, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=24, pool="pseudo")
 
 merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=50)
 
@@ -52,7 +52,7 @@ write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quot
 seqtab.nochim <- readRDS("seqtab_nochim.rds")
 
 #TAXONOMY
-taxa <- assignTaxonomy(seqtab.nochim, "../dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
-taxa <- addSpecies(taxa, "../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
+taxa <- assignTaxonomy(seqtab.nochim, "../../dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
+taxa <- addSpecies(taxa, "../../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
 saveRDS(taxa.plus, file = "taxID.rds")
 quit("no") 

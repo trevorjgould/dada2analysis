@@ -14,7 +14,7 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
 # 16s
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(260,240), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=24)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(260,240), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=12)
 head(out)
 
 #dereplicate reads
@@ -24,11 +24,11 @@ derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
 # error models
-errF <- learnErrors(derep_forward, multithread=24, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=24, randomize=TRUE)
+errF <- learnErrors(derep_forward, multithread=12, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=12, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=24, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=24, pool="pseudo")
+dadaFs <- dada(derep_forward, err=errF, multithread=12, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=12, pool="pseudo")
 
 merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=50)
 

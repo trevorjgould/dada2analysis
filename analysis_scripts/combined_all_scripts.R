@@ -25,36 +25,66 @@ return(list(newtable = newtable, newmap = newmap, combined_taxa = both))
 
 # read in files
 Diversity_Plots <- function(brayWmeta,newmap){
-# brayWmeta <- read.table('proportional_diversity_stats.txt')
-# newmap <- read.table("Metadata_common.txt")
-var_explained = (brayWmeta$EV/sum(brayWmeta$EV))*100
-var_explained = format(round(var_explained, 2), nsmall = 2)
-
-Adiv <- function(x) {
-    ShanD <-  ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$shannon, fill = x)) + geom_violin(trim=FALSE) + geom_boxplot(width=0.1, fill="white")+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + scale_discrete_manual(values = newcolors, aesthetics = "fill")
-	SimD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$simpson, fill = x)) + geom_violin(trim=FALSE) + geom_boxplot(width=0.1, fill="white")+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + scale_discrete_manual(values = newcolors, aesthetics = "fill")
-	SimI <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$shannon, fill = x)) + geom_violin(trim=FALSE) + geom_boxplot(width=0.1, fill="white")+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("invsimpson") + scale_discrete_manual(values = newcolors, aesthetics = "fill")
-    #combinded_plot <- ShanD / SimD / SimI
-    combinded_plot <- gridExtra::grid.arrange(ShanD,SimD,SimI, ncol = 1)
-    plottitle <- paste0("AlphaDiversity_plots_",x,".png")
-    ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
-}
-
-# ggplot functions for PCoAs
-bdiv <- function(j) {
-    PC1PC2 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta$PC2, colour = j)) + ggplot2::geom_point(pch=21, size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + scale_color_manual(values=newcolors)
-    PC1PC3 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta$PC3, colour = j)) + ggplot2::geom_point(pch=21, size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + scale_color_manual(values=newcolors)
+    # brayWmeta <- read.table('proportional_diversity_stats.txt')
+    # newmap <- read.table("Metadata_common.txt")
+    var_explained = (brayWmeta$EV/sum(brayWmeta$EV))*100
+    var_explained = format(round(var_explained, 2), nsmall = 2)
+    
+    Adiv <- function(x) {
+        ShanD <-  ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$shannon, fill = x)) + geom_violin(trim=FALSE) + geom_boxplot(width=0.1, fill="white")+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + scale_discrete_manual(values = newcolors, aesthetics = "fill")
+        SimD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$simpson, fill = x)) + geom_violin(trim=FALSE) + geom_boxplot(width=0.1, fill="white")+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + scale_discrete_manual(values = newcolors, aesthetics = "fill")
+        SimI <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$shannon, fill = x)) + geom_violin(trim=FALSE) + geom_boxplot(width=0.1, fill="white")+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("invsimpson") + scale_discrete_manual(values = newcolors, aesthetics = "fill")
+        #combinded_plot <- ShanD / SimD / SimI
+        combinded_plot <- gridExtra::grid.arrange(ShanD,SimD,SimI, ncol = 1)
+        plottitle <- paste0("AlphaDiversity_plots_",x,".png")
+        ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
+    }
+    
+    # ggplot functions for PCoAs
+    bdiv <- function(j) {
+        PC1PC2 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta$PC2, fill = j)) + ggplot2::geom_point(pch=21, size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + scale_color_manual(values=newcolors)
+        PC1PC3 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta$PC3, fill = j)) + ggplot2::geom_point(pch=21, size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + scale_color_manual(values=newcolors)
+        #combinded_plot2 <- PC1PC2 / PC1PC3
+        combinded_plot2 <- gridExtra::grid.arrange(PC1PC2, PC1PC3, ncol = 1)
+        plottitle <- paste0("PCoA_PC12_PC13_continuous",j,".png")
+        ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
+    }
+    
+    # make plots
+    #lapply(colnames(outtab$newmap), Adiv)
+    #lapply(colnames(outtab$newmap), bdiv)
+    
+    bdivfac <- function(j) {
+        PC1PC2 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta$PC2, fill = as.factor(j))) + ggplot2::geom_point(pch=21, size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + scale_color_manual(values=newcolors)
+        PC1PC3 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta$PC3, as.factor(j))) + ggplot2::geom_point(pch=21, size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + scale_color_manual(values=newcolors)
+        #combinded_plot2 <- PC1PC2 / PC1PC3
+        combinded_plot2 <- gridExtra::grid.arrange(PC1PC2, PC1PC3, ncol = 1)
+        plottitle <- paste0("PCoA_PC12_PC13_continuous",j,".png")
+        ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
+    }
+    
+    num_cols <- unlist(lapply(outtab$newmap, is.numeric)) 
+    numeric <- outtab$newmap[,num_cols]
+    factor <- outtab$newmap[,!num_cols]
+    lapply(colnames(numeric), bdivfac)
+    lapply(colnames(factor), bdiv)
+    
+    #manual ID3
+    PC1PC2 <- ggplot2::ggplot(brayWmeta, ggplot2::aes(PC1,PC2, fill = as.factor(ID3))) + ggplot2::geom_point(pch=21, size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + scale_fill_manual(values=newcolors)
+    PC1PC3 <- ggplot2::ggplot(brayWmeta, ggplot2::aes(PC1,PC3, fill = as.factor(ID3))) + ggplot2::geom_point(pch=21, size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + scale_fill_discrete(name = "ID3")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + scale_fill_manual(values=newcolors)
     #combinded_plot2 <- PC1PC2 / PC1PC3
     combinded_plot2 <- gridExtra::grid.arrange(PC1PC2, PC1PC3, ncol = 1)
-    plottitle <- paste0("PCoA_PC12_PC13_continuous",j,".png")
+    plottitle <- paste0("PCoA_PC12_PC13_continuous_ID3.png")
     ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
-}
-
-    # make plots
-    num_cols <- unlist(lapply(outtab$newmap, is.numeric))   
-    fac_cols <- !num_cols
-    lapply(colnames(outtab$newmap), Adiv)
-    lapply(colnames(outtab$newmap), bdiv)
+    
+    ShanD <-  ggplot2::ggplot(brayWmeta, ggplot2::aes(as.factor(ID3), shannon, fill = as.factor(ID3), group=ID3)) + geom_violin(trim=FALSE) + geom_boxplot(width=0.1, fill="white")+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + scale_fill_manual(values = newcolors)
+    SimD <- ggplot2::ggplot(brayWmeta, ggplot2::aes(as.factor(ID3), simpson, fill = as.factor(ID3), group=ID3)) + geom_violin(trim=FALSE) + geom_boxplot(width=0.1, fill="white")+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + scale_fill_manual(values = newcolors)
+    SimI <- ggplot2::ggplot(brayWmeta, ggplot2::aes(as.factor(ID3), shannon, fill = as.factor(ID3), group=ID3)) + geom_violin(trim=FALSE) + geom_boxplot(width=0.1, fill="white")+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("invsimpson") + scale_fill_manual(values = newcolors)
+    #combinded_plot <- ShanD / SimD / SimI
+    combinded_plot <- gridExtra::grid.arrange(ShanD,SimD,SimI, ncol = 1)
+    plottitle <- paste0("AlphaDiversity_plots_ID3.png")
+    ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
+    
 }
 
 # metadata table

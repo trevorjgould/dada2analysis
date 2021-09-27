@@ -27,6 +27,19 @@ common <- intersect(rownames(taxa),rownames(newtable1))
 taxa2 <- taxa[common,, drop = FALSE]
 newtable2 <- newtable1[common,, drop = FALSE]
 both <- cbind(newtable2,taxa2)
+both <- as.data.frame(both)
+
+# replacing NA with Unknown higher level taxa
+both$Phylum <- ifelse(is.na(both$Phylum), paste0("Unknown ",both$Kingdom), both$Phylum)
+both$Class <- ifelse(is.na(both$Class), paste0("Unknown ",both$Phylum), both$Class)
+both$Order <- ifelse(is.na(both$Order), paste0("Unknown ",both$Class), both$Order)
+both$Family <- ifelse(is.na(both$Family), paste0("Unknown ",both$Order), both$Family)
+both$Genus <- ifelse(is.na(both$Genus), paste0("Unknown ",both$Family), both$Genus)
+both$Species <- ifelse(is.na(both$Species), paste0("Unknown ",both$Genus), both$Species)
+both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
+both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
+both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
+row.names(both) <- row.names(newtable1)
 #save to file
 write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE)
 return(list(newtable = newtable, newmap = newmap, combined_taxa = both))

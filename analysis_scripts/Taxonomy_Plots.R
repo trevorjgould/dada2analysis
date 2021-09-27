@@ -13,6 +13,7 @@ value <- variable <- Samples <- NULL
 
 Taxonomy_Plots <- function(meta){
 # read in tables
+pal = c('#91bfdb','#ffffbf','#fc8d59')
 #meta <- read.table("Metadata_common.txt", sep = "\t", check.names = FALSE)
 KT <- read.table(file = "Kingdom_taxonomy.txt", sep = "\t", check.names = FALSE)
 PT <- read.table(file = "Phylum_taxonomy.txt", sep = "\t", check.names = FALSE)
@@ -78,14 +79,16 @@ if(a!=b){
 both <- cbind(XT_other,meta)
 both$Samples <- row.names(meta)
 melted <- reshape2::melt(both, id.vars = c(colnames(meta),"Samples"))
+melted$variable <- gsub("[a-z]__", "", melted$variable)
+melted$variable <- gsub("\\.", " ", melted$variable)
 filename <- paste0(name_label,"_taxonomy_other.png")
 filename2 <- paste0(name_label,"_taxonomy_other.txt")
-p <- ggplot2::ggplot(melted, ggplot2::aes(Samples, (value*100), fill = variable)) + ggplot2::geom_bar(stat='identity')+ ggplot2::ylab("Percent") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) + ggplot2::scale_fill_discrete(name = name_label)
+p <- ggplot2::ggplot(melted, ggplot2::aes(Samples, (value*100), fill = variable)) + ggplot2::geom_bar(stat='identity')+ ggplot2::ylab("Percent") + facet_grid(Treatment~Day, scales = "free") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) + ggplot2::scale_fill_discrete(name = name_label)
 ggplot2::ggsave(p, file = filename, dpi  = 800, width = 10, height = 8, units = "in")
 write.table(both, file = filename2, sep = "\t", quote = FALSE)
-#V1p <- p + ggplot2::facet_grid(.~ var1, scales = "free_x")
-#filename = paste0(name_label,"-",x,"-V1_split_taxonomy_other.png")
-#ggplot2::ggsave(V1p, file = filename, dpi  = 800, width = 10, height = 8, units = "in")
-
+melted$variable = with(melted, reorder(variable,value,mean))
+p2 <- ggplot(melted, aes(as.factor(Day),variable, fill=value)) + geom_tile(color="white", size=0.1) + facet_grid(~Treatment, scales = "free_y") + xlab("Day") + ylab(name_label) + theme(axis.text.y = element_text(size = 8)) + scale_fill_gradientn(colours = pal,name = "Proportion")
+filename3 <- paste0(name_label,"_taxonomy_heat.png")
+ggplot2::ggsave(p2, file = filename3, dpi  = 800, width = 6, height = 6, units = "in")
 }
 }

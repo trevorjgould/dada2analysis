@@ -1,3 +1,10 @@
+# input dada2 sequence table
+inputtable <- readRDS('seqtab_nochim.rds')
+# input metadata
+metadata <- read.table('metadata.txt', sep = '\t', comment='', head=TRUE, row.names=1, check.names = FALSE)
+# input taxonomy
+taxa <- readRDS("taxID.rds")
+
 #combined functions
 newcolors <- c('#543005','#8c510a','#bf812d','#dfc27d','#f6e8c3','#c7eae5','#80cdc1','#35978f','#01665e','#003c30')
 Create_Tables <- function(inputtable,metadata,taxa){
@@ -273,7 +280,6 @@ t3 <- readRDS("taxID.rds")
 
 outtab <- Create_Tables(t1,t2,t3)
 combined_taxa <- read.table(file = "combined_sequences_taxa.txt", sep = "\t")
-
 taxa_out <- Make_Taxa_Tables("combined_sequences_taxa.txt")
 Taxonomy_Plots(outtab$newtable)
 brayWmeta <- diversity(outtab$newmap,outtab$newtable)

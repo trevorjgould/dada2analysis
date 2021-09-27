@@ -6,7 +6,7 @@ chmod +x run_cutadapt.sh
 cd 01_adapter    
 mkdir 01_logs
 mv cutadapt* 01_logs
-grep "passed" 01_logs/* > summary_adapter_trimming.txt
+grep "passing" 01_logs/* > summary_adapter_trimming.txt
 
 # remove primers
 mkdir ../02_filtered  
@@ -19,4 +19,4 @@ chmod +x run_cutadapt2.cmd
 cd ../02_filtered/
 mkdir 02_logs
 mv *log.txt 02_logs
-grep "passed" 02_logs/* > summary_primer_trimming.txt
+grep "passing" 02_logs/* > summary_primer_trimming.txt

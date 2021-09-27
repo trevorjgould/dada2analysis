@@ -38,20 +38,21 @@ bdiv <- function(j) {
 lapply(colnames(newmap), Adiv)
 lapply(colnames(newmap), bdiv)
 
-#HARDCODED SITE PLOT
-ShanD <- ggplot2::ggplot(brayWmeta, ggplot2::aes(as.factor(Site), shannon, colour = as.factor(Site))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank())
-SimD <- ggplot2::ggplot(brayWmeta, ggplot2::aes(as.factor(Site), simpson, colour = as.factor(Site))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank())
-SimI <- ggplot2::ggplot(brayWmeta, ggplot2::aes(as.factor(Site), invsimpson, colour = as.factor(Site))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Inverse_Simpson") + ggplot2::xlab("Site") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+#HARDCODED Day Treatment
+ShanD <- ggplot2::ggplot(brayWmeta, ggplot2::aes(Treatment, shannon, colour = as.factor(Day))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.7)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank())
+SimD <- ggplot2::ggplot(brayWmeta, ggplot2::aes(Treatment, simpson, colour = as.factor(Day))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.7)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank())
+SimI <- ggplot2::ggplot(brayWmeta, ggplot2::aes(Treatment, chao1, colour = as.factor(Day))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.7)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::ylab("Chao1") + ggplot2::xlab("Site") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) + scale_color_discrete(name = "Day")
 #combinded_plot <- ShanD / SimD / SimI
 combinded_plot <- gridExtra::grid.arrange(ShanD,SimD,SimI, ncol = 1)
-plottitle <- paste0("AlphaDiversity_plots_Site.png")
+plottitle <- paste0("AlphaDiversity_plots_Treatment_Day.png")
 ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
+
 # all site combined
-PC1PC2 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta$PC2, colour = as.factor(brayWmeta$Site))) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC2: ",(var_explained[2]), "% variance"))
-PC1PC3 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta$PC3, colour = as.factor(brayWmeta$Site))) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC3: ",(var_explained[3]), "% variance"))
+PC1PC2 <- ggplot2::ggplot(brayWmeta, ggplot2::aes(PC1,PC2, colour = as.factor(Day), shape = Treatment)) + geom_point(shape=24) + theme_bw() + theme(legend.position = "NA")  + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ylab(paste0("PC2: ",(var_explained[2]), "% variance"))
+PC1PC3 <- ggplot2::ggplot(brayWmeta, ggplot2::aes(PC1,PC3, colour = as.factor(Day), shape = Treatment)) + geom_point(shape=24) + theme_bw() + theme(legend.position = "bottom")  + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + scale_color_discrete(name = "Day")
 #combinded_plot2 <- PC1PC2 / PC1PC3
 combinded_plot2 <- gridExtra::grid.arrange(PC1PC2, PC1PC3, ncol = 1)
-plottitle <- paste0("PCoA_PC12_PC13_Site.png")
+plottitle <- paste0("PCoA_PC12_PC13_Day_Treatment.png")
 ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
 # hard coded Site facet species
 PC1PC2 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta$PC2, colour = as.factor(brayWmeta$Site))) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + facet_wrap(~brayWmeta$Species)
@@ -60,3 +61,4 @@ PC1PC3 <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(brayWmeta$PC1,brayWmeta
 combinded_plot2 <- gridExtra::grid.arrange(PC1PC2, PC1PC3, ncol = 1)
 plottitle <- paste0("PCoA_PC12_PC13_Site_facet_species.png")
 ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
+}

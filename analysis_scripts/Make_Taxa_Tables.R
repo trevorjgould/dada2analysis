@@ -13,18 +13,11 @@ domain <- phylum <- family <- genus <- species <- NULL
 
 # reads in table from Make_Tables.R
 Make_Taxa_Tables <- function(x){
-combined_taxa <- read.table(file = x, sep = "\t")
-# taxonomy_tables
-# files to use for taxa:
-# metadata table
-#metadata <- read.table("Metadata_common.txt")
-# taxa
-#newtable <- read.table("combined_sequences_taxa.txt", sep = "\t", check.names = FALSE)
-
+combined_taxa <- read.table("combined_sequences_taxa.txt", sep = "\t", check.names = FALSE)
 #make split taxa tables
 levels <- c("Kingdom","Phylum","Class","Order","Family","Genus","Species")
 n <- (ncol(combined_taxa) - 7)
-`%>%` <- dplyr::`%>%`
+#`%>%` <- dplyr::`%>%`
 Domain_table <- combined_taxa %>% dplyr::select(Kingdom,1:n)
 Phylum_table <- combined_taxa %>% dplyr::select(Phylum,1:n)
 Class_table <- combined_taxa %>% dplyr::select(Class,1:n)
@@ -46,12 +39,28 @@ OT = setNames(data.frame(t(OT[,-1])), OT[,1])
 FT = setNames(data.frame(t(FT[,-1])), FT[,1])
 GT = setNames(data.frame(t(GT[,-1])), GT[,1])
 ST = setNames(data.frame(t(ST[,-1])), ST[,1])
+# remove columns of sum = 0
+KT <- KT[,colSums(KT)>0]
+PT <- PT[,colSums(PT)>0]
+CT <- CT[,colSums(CT)>0]
+OT <- OT[,colSums(OT)>0]
+FT <- FT[,colSums(FT)>0]
+GT <- GT[,colSums(GT)>0]
+ST <- ST[,colSums(ST)>0]
+# remove "Unknown NA" column
+KT <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
+PT <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
+CT <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
+OT <- OT[ , -which(names(OT) %in% c("Unknown NA"))]
+FT <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
+GT <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
+ST <- ST[ , -which(names(ST) %in% c("Unknown NA"))]
 write.table(KT, file = "Kingdom_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(PT, file = "Phylum_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(CT, file = "Class_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(OT, file = "Order_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(FT, file = "Family_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(GT, file = "Genus_taxonomy.txt", quote = FALSE, sep = "\t")
-write.table(ST, file = "Species_taxonomy.txt", quote = FALSE)
+write.table(ST, file = "Species_taxonomy.txt", quote = FALSE, sep = "\t")
 return(list(KT=KT,PT=PT,CT=CT,OT=OT,FT=FT,GT=GT,ST=ST))
 }

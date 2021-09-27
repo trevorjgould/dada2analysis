@@ -53,12 +53,13 @@ var_explained = format(round(var_explained, 2), nsmall = 2)
 #eigenvalues
 newmap$EV <- d.mes$sdev^2
 brayWmeta <- cbind(newmap,d.mes$x[,1:4])
-
+newtable2 <- t(newtable)
+brayWmeta$chao1 <- apply(newtable2, 2, OTUtable::chao1)
 #alpha_diversity_stats
 propdist <- sweep(newtable, 1, rowSums(newtable),'/')
 brayWmeta$shannon <- vegan::diversity(propdist, index = "shannon")
 brayWmeta$simpson <- vegan::diversity(propdist, index = "simpson")
-brayWmeta$invsimpson <- vegan::diversity(propdist, index = "invsimpson")
+#brayWmeta$invsimpson <- vegan::diversity(propdist, index = "invsimpson")
 write.table(brayWmeta, file="proportional_diversity_stats.txt", quote = FALSE)
 return(brayWmeta)
 }

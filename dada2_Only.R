@@ -24,11 +24,11 @@ derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
 # error models
-errF <- learnErrors(derep_forward, multithread=12, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=12, randomize=TRUE)
+errF <- learnErrors(derep_forward, multithread=4, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=4, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=12, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=12, pool="pseudo")
+dadaFs <- dada(derep_forward, err=errF, multithread=4, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=4, pool="pseudo")
 
 merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=50)
 
@@ -53,6 +53,13 @@ seqtab.nochim <- readRDS("seqtab_nochim.rds")
 
 #TAXONOMY
 taxa <- assignTaxonomy(seqtab.nochim, "../../dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
-taxa <- addSpecies(taxa, "../../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
+taxa.plus <- addSpecies(taxa, "../../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
 saveRDS(taxa.plus, file = "taxID.rds")
 quit("no") 
+
+
+
+#TAXONOMY
+taxa <- assignTaxonomy(seqtab.nochim, "dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
+taxa.plus <- addSpecies(taxa, "dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
+saveRDS(taxa.plus, file = "taxID.rds")

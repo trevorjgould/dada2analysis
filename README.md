@@ -8,6 +8,29 @@
 3) statistical analysis
 4) summary plots
 
+
+**Example:**
+```
+# input dada2 sequence table
+t1 <- readRDS('seqtab_nochim.rds')
+# input metadata
+t2 <- read.table('metadata.txt', sep = '\t', comment='', head=TRUE, row.names=1, check.names = FALSE)
+# input taxonomy
+t3 <- readRDS("taxID.rds")
+
+outtab <- Create_Tables(t1,t2,t3)
+combined_taxa <- read.table(file = "combined_sequences_taxa.txt", sep = "\t")
+
+taxa_out <- Make_Taxa_Tables("combined_sequences_taxa.txt")
+Taxonomy_Plots(outtab$newmap)
+sequence_count_table <- read.delim("sequence_process_summary.txt", row.names=1)
+sequence_count_plot(sequence_count_table)
+brayWmeta <- diversity(outtab$newmap,outtab$newtable)
+Diversity_Plots(brayWmeta, outtab$newmap)
+```
+
+
+
 **Processing of 16S sequences**
   - dada2_16S_processing.pbs > dada2_version2.R
 

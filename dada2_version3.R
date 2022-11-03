@@ -4,6 +4,8 @@
 #load modules here
 # module load cutadapt
 
+/home/umii/goul0109/scripts/fix_names.sh
+
 # remove adapters
 mkdir 01_adapter
 for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 150 -a TATGGTAATTGTGTGNCAGCNGCCGCGGTAA -g ATTAGANACCCNNGTAGTCCGGCTGGCTGACT -A AGTCAGCCAGCCGGACTACNVGGGTNTCTAAT -o 01_adapter/${i//_R1_001.fastq.gz/-cut_R1_001.fastq.gz} -p 01_adapter/${i//_R1_001.fastq.gz/-cut_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > 01_adapter/cutadapt.${i//_R1_001.fastq.gz/.log.txt}" >> run_cutadapt.sh; done
@@ -16,9 +18,7 @@ mv cutadapt* 01_logs
 # remove primers
 mkdir ../02_filtered  
 #V4
-#for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g GGACTACHVGGGTWTCTAAT -G GGACTACHVGGGTWTCTAAT --discard-untrimmed -o ../02_filtered/${i//-cut_R1_001.fastq.gz/-trimmed_R1_001.fastq.gz} -p ../02_filtered/${i//-cut_R1_001.fastq.gz/-trimmed_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
-#V3V4
-for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g AGAGTTTGATCMTGGCTCAG -G ATTACCGCGGCTGCTGG --discard-untrimmed -o ../02_filtered/${i//-cut_R1_001.fastq.gz/_R1_001.fastq.gz} -p ../02_filtered/${i//-cut_R1_001.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g GTGCCAGCMGCCGCGGTAA -G GGACTACHVGGGTWTCTAAT --discard-untrimmed -o ../02_filtered/${i//-cut_R1_001.fastq.gz/_R1_001.fastq.gz} -p ../02_filtered/${i//-cut_R1_001.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
 chmod +x run_cutadapt2.cmd
 ./run_cutadapt2.cmd
 cd ../02_filtered/
@@ -44,7 +44,7 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
 # 16s
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(280,260), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(280,260), maxN=0, maxEE=c(2,4), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
 head(out)
 
 # error models
@@ -86,14 +86,11 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[3:60,1],
                dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
-seqtab.nochim <- readRDS("seqtab_nochim.rds")
-
 #TAXONOMY
-seqs <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
-taxa <- assignTaxonomy(seqs, "../dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=8)
-taxa.plus <- addSpecies(taxa, "../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
-saveRDS(taxa.plus, file = "taxID.rds")
-
+seqtab.nochim <- readRDS("seqtab_nochim.rds")
+taxa <- assignTaxonomy(seqtab.nochim, "/home/umii/goul0109/silva_nr_v138_train_set.fa.gz", multithread=8)
+taxa <- addSpecies(taxa, "/home/umii/goul0109/silva_species_assignment_v138.fa.gz")
+saveRDS(taxa, file = "taxID.rds")
 
 #dna <- DNAStringSet(getSequences(seqtab.nochim)) # Create a DNAStringSet from the ASVs
 #load("/home/umii/goul0109/SILVA_SSU_r132_March2018.RData") # CHANGE TO THE PATH OF YOUR TRAINING SET

@@ -13,8 +13,7 @@ domain <- phylum <- family <- genus <- species <- NULL
 
 # reads in table from Make_Tables.R
 Make_Taxa_Tables <- function(x){
-combined_taxa <- read.table("combined_sequences_taxa.txt", sep = "\t", check.names = FALSE)
-#make split taxa tables
+combined_taxa <- read.table("combined_sequences_taxa.txt", sep = "\t", check.names = FALSE, header=TRUE, row.names = 1)#make split taxa tables
 levels <- c("Kingdom","Phylum","Class","Order","Family","Genus","Species")
 n <- (ncol(combined_taxa) - 7)
 #`%>%` <- dplyr::`%>%`
@@ -48,7 +47,6 @@ FT <- FT[,colSums(FT)>0]
 GT <- GT[,colSums(GT)>0]
 ST <- ST[,colSums(ST)>0]
 # remove "Unknown NA" column
-# these # out for ITS
 #KT <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
 #PT <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
 #CT <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
@@ -56,12 +54,19 @@ ST <- ST[,colSums(ST)>0]
 #FT <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
 #GT <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
 #ST <- ST[ , -which(names(ST) %in% c("Unknown NA"))]
-#write.table(KT, file = "Kingdom_taxonomy.txt", quote = FALSE, sep = "\t")
-#write.table(PT, file = "Phylum_taxonomy.txt", quote = FALSE, sep = "\t")
-#write.table(CT, file = "Class_taxonomy.txt", quote = FALSE, sep = "\t")
-#write.table(OT, file = "Order_taxonomy.txt", quote = FALSE, sep = "\t")
-#write.table(FT, file = "Family_taxonomy.txt", quote = FALSE, sep = "\t")
-#write.table(GT, file = "Genus_taxonomy.txt", quote = FALSE, sep = "\t")
-#write.table(ST, file = "Species_taxonomy.txt", quote = FALSE, sep = "\t")
+KT <- KT %>% rownames_to_column("SampleID")
+PT <- PT %>% rownames_to_column("SampleID")
+CT <- CT %>% rownames_to_column("SampleID")
+OT <- OT %>% rownames_to_column("SampleID")
+FT <- FT %>% rownames_to_column("SampleID")
+GT <- GT %>% rownames_to_column("SampleID")
+ST <- ST %>% rownames_to_column("SampleID")
+write_tsv(KT, file = "Kingdom_taxonomy.txt")
+write_tsv(PT, file = "Phylum_taxonomy.txt")
+write_tsv(CT, file = "Class_taxonomy.txt")
+write_tsv(OT, file = "Order_taxonomy.txt")
+write_tsv(FT, file = "Family_taxonomy.txt")
+write_tsv(GT, file = "Genus_taxonomy.txt")
+write_tsv(ST, file = "Species_taxonomy.txt")
 return(list(PT=PT,CT=CT,OT=OT,FT=FT,GT=GT,ST=ST))
 }

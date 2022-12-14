@@ -41,6 +41,7 @@ both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", 
 both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
 row.names(both) <- row.names(newtable1)
 #save to file
-write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE)
+both <- both %>% rownames_to_column("SampleID")
+write.table(both, file = "combined_sequences_taxa.txt", col.names = NA, sep = "\t", quote = FALSE)
 return(list(newtable = newtable, newmap = newmap, combined_taxa = both))
 }

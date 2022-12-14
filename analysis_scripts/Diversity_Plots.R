@@ -15,13 +15,13 @@ var_explained = (brayWmeta$EV/sum(brayWmeta$EV))*100
 var_explained = format(round(var_explained, 2), nsmall = 2)
 
 Adiv <- function(x) {
-    ShanD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$shannon, colour = x)) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank())
-    SimD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$simpson, colour = x)) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
-    #SimI <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$chao1, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+    ShanD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$shannon, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank())
+    SimD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$simpson, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank())
+    SimI <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$chao1, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
     #combinded_plot <- ShanD / SimD / SimI
-    combinded_plot <- gridExtra::grid.arrange(ShanD,SimD, ncol = 1)
+    combinded_plot <- gridExtra::grid.arrange(ShanD,SimD,SimI, ncol = 1)
     plottitle <- paste0("AlphaDiversity_plots_",x,".png")
-    ggplot2::ggsave(combinded_plot, file=plottitle, dpi=400, height = 12, width = 6, units = "in")
+    ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
 }
 
 # ggplot functions for PCoAs
@@ -31,11 +31,57 @@ bdiv <- function(j) {
     #combinded_plot2 <- PC1PC2 / PC1PC3
     combinded_plot2 <- gridExtra::grid.arrange(PC1PC2, PC1PC3, ncol = 1)
     plottitle <- paste0("PCoA_PC12_PC13_continuous",j,".png")
-    ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
+    ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
 }
+
+Adiv2 <- function(x) {
+  subbed <- brayWmeta[!brayWmeta[,x] == "",]
+  brayWmeta <- subbed %>% drop_na(x)
+  my_comparisons <- unique(brayWmeta[,x])
+  out <- crossing(my_comparisons,my_comparisons)
+  out2 <- subset(out, out[,1] != out[,2])
+  makecomp <- out2[as.character(out2$my_comparisons...1) < as.character(out2$my_comparisons...2),]
+  comparisons = list(makecomp[1,], makecomp[2,],makecomp[3,],makecomp[4,])
+  ShanD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$shannon, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + stat_compare_means(comparisons = comparisons) + stat_compare_means()
+  SimD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$simpson, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + stat_compare_means(comparisons =comparisons) + stat_compare_means()
+  SimI <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$chao1, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) + stat_compare_means(comparisons = comparisons) + stat_compare_means()
+  #combinded_plot <- ShanD / SimD / SimI
+  combinded_plot <- gridExtra::grid.arrange(ShanD,SimD,SimI, ncol = 1)
+  plottitle <- paste0("AlphaDiversity_plots_",x,"_significance.png")
+  ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
+}
+# make plots
+lapply(colnames(newmap), Adiv)
+#bdiv("Eligibility_group")
+#bdiv("V1_ACV2SPIKE_Result")
+lapply(colnames(newmap), bdiv)
+}
+
+
+#HARDCODE
+#x="V1_ACV2SPIKE_Result"
+x="Eligibility_group"
+subbed <- brayWmeta[!brayWmeta[,x] == "",]
+brayWmeta <- subbed %>% drop_na(x)
+my_comparisons <- unique(brayWmeta[,x])
+out <- crossing(my_comparisons,my_comparisons)
+out2 <- subset(out, out[,1] != out[,2])
+makecomp <- out2[as.character(out2$my_comparisons...1) < as.character(out2$my_comparisons...2),]
+comparison_list <- list(c("Positive","Negative"))
+#comparison_list <- list(c("Transplant","HIV"),c("Transplant","Immunocomp"),c("Cancer","Transplant"),c("HIV","Immunocomp"),c("HIV","Cancer"))
+ShanD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$shannon, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + facet_wrap(~Visit_Number, scales = "free") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + stat_compare_means(comparisons = comparison_list) + stat_compare_means()
+SimD <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$simpson, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + facet_wrap(~Visit_Number, scales = "free") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + stat_compare_means(comparisons =comparison_list) + stat_compare_means()
+SimI <- ggplot2::ggplot(brayWmeta, ggplot2::aes_string(x, brayWmeta$chao1, colour = x)) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + facet_wrap(~Visit_Number, scales = "free") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) + stat_compare_means(comparisons = comparison_list) + stat_compare_means()
+#combinded_plot <- ShanD / SimD / SimI
+combinded_plot <- gridExtra::grid.arrange(ShanD,SimD,SimI, ncol = 1)
+plottitle <- paste0("AlphaDiversity_plots_",x,"_significance.png")
+ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
+
 
 # make plots
 lapply(colnames(newmap), Adiv)
+#bdiv("Eligibility_group")
+#bdiv("V1_ACV2SPIKE_Result")
 lapply(colnames(newmap), bdiv)
 
 ##HARDCODED Day Treatment

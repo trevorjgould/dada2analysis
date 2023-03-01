@@ -40,21 +40,21 @@ FT = setNames(data.frame(t(FT[,-1])), FT[,1])
 GT = setNames(data.frame(t(GT[,-1])), GT[,1])
 ST = setNames(data.frame(t(ST[,-1])), ST[,1])
 # remove columns of sum = 0
-KT <- KT[,colSums(KT)>0]
-PT <- PT[,colSums(PT)>0]
-CT <- CT[,colSums(CT)>0]
-OT <- OT[,colSums(OT)>0]
-FT <- FT[,colSums(FT)>0]
-GT <- GT[,colSums(GT)>0]
-ST <- ST[,colSums(ST)>0]
+#KT <- KT[,colSums(KT)>0]
+#PT <- PT[,colSums(PT)>0]
+#CT <- CT[,colSums(CT)>0]
+#OT <- OT[,colSums(OT)>0]
+#FT <- FT[,colSums(FT)>0]
+#GT <- GT[,colSums(GT)>0]
+#ST <- ST[,colSums(ST)>0]
 # remove "Unknown NA" column
-KT <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
-PT <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
-CT <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
-OT <- OT[ , -which(names(OT) %in% c("Unknown NA"))]
-FT <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
-GT <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
-ST <- ST[ , -which(names(ST) %in% c("Unknown NA"))]
+#KT <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
+#PT <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
+#CT <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
+#OT <- OT[ , -which(names(OT) %in% c("Unknown NA"))]
+#FT <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
+#GT <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
+#ST <- ST[ , -which(names(ST) %in% c("Unknown NA"))]
 write.table(KT, file = "Kingdom_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(PT, file = "Phylum_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(CT, file = "Class_taxonomy.txt", quote = FALSE, sep = "\t")

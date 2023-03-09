@@ -52,14 +52,13 @@ write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quot
 seqtab.nochim <- readRDS("seqtab_nochim.rds")
 
 #TAXONOMY
-taxa <- assignTaxonomy(seqtab.nochim, "../../dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
-taxa.plus <- addSpecies(taxa, "../../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
-saveRDS(taxa.plus, file = "taxID.rds")
-quit("no") 
-
+taxardp <- assignTaxonomy(seqtab.nochim, "../../dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
+taxardp<- addSpecies(taxardp, "../../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
+saveRDS(taxardp, file = "taxIDrdp.rds")
 
 
 #TAXONOMY
-taxa <- assignTaxonomy(seqtab.nochim, "dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
-taxa.plus <- addSpecies(taxa, "dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
-saveRDS(taxa.plus, file = "taxID.rds")
+taxasilva <- assignTaxonomy(seqtab.nochim, "dada2_pipeline/taxonomy/silva_nr99_v138.1_train_set.fa", multithread=TRUE)
+taxasilva <- addSpecies(taxasilva, "dada2_pipeline/taxonomy/silva_species_assignment_v138.1.fa")
+saveRDS(taxasilva, file = "taxIDsilva.rds")
+quit("no") 

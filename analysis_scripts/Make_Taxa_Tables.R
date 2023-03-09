@@ -12,7 +12,7 @@
 domain <- phylum <- family <- genus <- species <- NULL
 
 # reads in table from Make_Tables.R
-Make_Taxa_Tables <- function(x){
+#Make_Taxa_Tables <- function(x){
 combined_taxa <- read.table("combined_sequences_taxa.txt", sep = "\t", check.names = FALSE)
 #make split taxa tables
 levels <- c("Kingdom","Phylum","Class","Order","Family","Genus","Species")
@@ -62,5 +62,5 @@ write.table(OT, file = "Order_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(FT, file = "Family_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(GT, file = "Genus_taxonomy.txt", quote = FALSE, sep = "\t")
 write.table(ST, file = "Species_taxonomy.txt", quote = FALSE, sep = "\t")
-return(list(KT=KT,PT=PT,CT=CT,OT=OT,FT=FT,GT=GT,ST=ST))
-}
+#return(list(KT=KT,PT=PT,CT=CT,OT=OT,FT=FT,GT=GT,ST=ST))
+#}

@@ -66,7 +66,7 @@ input | output
 --------- | ---------
 proportional_diversity_stats.txt | 
 
-**Sequence_coun_plot.R**
+**Sequence_count_plot.R**
 input | output
 --------- | ---------
 final_sequence_count.txt | sequence_count_plot.png

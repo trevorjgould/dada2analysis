@@ -14,7 +14,7 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
 # 16s
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(260,240), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=12)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,200), maxN=0, maxEE=c(2,4), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=12)
 head(out)
 
 #dereplicate reads
@@ -58,7 +58,7 @@ saveRDS(taxardp, file = "taxIDrdp.rds")
 
 
 #TAXONOMY
-taxasilva <- assignTaxonomy(seqtab.nochim, "dada2_pipeline/taxonomy/silva_nr99_v138.1_train_set.fa", multithread=TRUE)
-taxasilva <- addSpecies(taxasilva, "dada2_pipeline/taxonomy/silva_species_assignment_v138.1.fa")
+taxasilva <- assignTaxonomy(seqtab.nochim, "/home/umii/goul0109/silva_nr_v138_train_set.fa.gz", multithread=TRUE)
+taxasilva <- addSpecies(taxasilva, "/home/umii/goul0109/silva_species_assignment_v138.1.fa.gz")
 saveRDS(taxasilva, file = "taxIDsilva.rds")
 quit("no") 

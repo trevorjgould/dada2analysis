@@ -16,6 +16,12 @@ common <- intersect(rownames(metadata),rownames(inputtable))
 # get just the overlapping samples
 newmap <- metadata[common,, drop = FALSE]
 newtable <- inputtable[common,, drop = FALSE]
+
+# check if sampleID starts with a number and if so add an S to the start.
+if(is.numeric(substring(common[[1]], 1, 1))){
+rownames(newmap) <- paste0("S",common)
+rownames(newtable) <- paste0("S",common)
+}
 #save to file
 saveRDS(newtable, file = "Sequence_table_common.rds")
 write.table(newmap, file = "Metadata_common.txt")
@@ -42,5 +48,19 @@ both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", 
 row.names(both) <- row.names(newtable1)
 #save to file
 write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE)
+# check that sizes of input and output are the same
+# does inputtable = newtable
+print("Checking if dimensions are the same")
+print("inputtable Rows")
+if(dim(inputtable)[1] == dim(newtable2)[1]){print("good")}
+print("inputtable Columns")
+if(dim(inputtable)[2] == dim(newtable2)[2]){print("good")}
+# does metadata = newmap
+print("metadatarows")
+if(dim(metadata)[1] == dim(newmap)[1]){print("good")}
+print("metadata columns")
+if(dim(metadata)[2] == dim(newmap)[2]){print("good")}
+# does taxa + inputtable = combined_taxa
+
 return(list(newtable = newtable, newmap = newmap, combined_taxa = both))
 }

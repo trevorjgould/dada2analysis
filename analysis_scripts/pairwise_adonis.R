@@ -1,5 +1,5 @@
 # https://github.com/pmartinezarbizu/pairwiseAdonis
-
+#
 pairwise.adonis <- function(x,factors, sim.function = 'vegdist', sim.method = 'bray', p.adjust.m ='bonferroni',reduce=NULL,perm=999)
 {
     

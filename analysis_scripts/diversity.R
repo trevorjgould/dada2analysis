@@ -17,6 +17,7 @@ diversity <- function(newmap,newtable){
 
 # get counts
 newmap$count <- rowSums(newtable)
+#newmap <- newmap[-which(newmap$Eligibility_group == ""), ]
 
 # 0 out NA cells
 newtable[is.na(newtable)] <- 0
@@ -40,6 +41,7 @@ data.CLR <- clr_transform(newtable2)
 data.CLR <- t(data.CLR)
 
 # get just the overlapping samples
+#meta <- newmap[-which(newmap$Eligibility_group == ""), ]
 common <- intersect(rownames(data.CLR),rownames(newmap))
 data.CLR <- data.CLR[common,, drop = FALSE]
 newmap <- newmap[common,, drop = FALSE]

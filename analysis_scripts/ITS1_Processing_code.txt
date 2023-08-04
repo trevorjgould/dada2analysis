@@ -1,0 +1,122 @@
+# remove adapters
+mkdir /scratch.global/goul0109/Moeller/01_adapter
+for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 150 -a TATGGTAATTGTGTGNCAGCNGCCGCGGTAA -g ATTAGANACCCNNGTAGTCCGGCTGGCTGACT -A AGTCAGCCAGCCGGACTACNVGGGTNTCTAAT -o /scratch.global/goul0109/Moeller/01_adapter/${i//_R1_001.fastq.gz/-cut_R1_001.fastq.gz} -p /scratch.global/goul0109/Moeller/01_adapter/${i//_R1_001.fastq.gz/-cut_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > /scratch.global/goul0109/Moeller/01_adapter/cutadapt.${i//_R1_001.fastq.gz/.log.txt}" >> /scratch.global/goul0109/Moeller/run_cutadapt.sh; done
+/scratch.global/goul0109/Moeller/
+chmod +x /scratch.global/goul0109/Moeller/run_cutadapt.sh
+/scratch.global/goul0109/Moeller/run_cutadapt.sh
+cd /scratch.global/goul0109/Moeller/01_adapter
+mkdir 01_logs
+mv cutadapt* 01_logs
+grep "passing" 01_logs/* > summary_adapter_trimming.txt
+module load R/3.6.0
+R
+#############################
+library(dada2)
+packageVersion("dada2")
+library(ShortRead)
+packageVersion("ShortRead")
+library(Biostrings)
+packageVersion("Biostrings")
+
+path <- "."
+fnFs <- sort(list.files(path, pattern="_R1_001.fastq.gz", full.names = TRUE))
+fnRs <- sort(list.files(path, pattern="_R2_001.fastq.gz", full.names = TRUE))
+
+FWD <- "CTTGGTCATTTAGAGGAAGTAA"  ## CHANGE ME to your forward primer sequence
+REV <- "GCTGCGTTCTTCATCGATGC"  ## CHANGE ME...
+
+allOrients <- function(primer) {
+    # Create all orientations of the input sequence
+    require(Biostrings)
+    dna <- DNAString(primer)  # The Biostrings works w/ DNAString objects rather than character vectors
+    orients <- c(Forward = dna, Complement = complement(dna), Reverse = reverse(dna), 
+        RevComp = reverseComplement(dna))
+    return(sapply(orients, toString))  # Convert back to character vector
+}
+FWD.orients <- allOrients(FWD)
+REV.orients <- allOrients(REV)
+FWD.orients
+fnFs.filtN <- file.path(path, "filtN", basename(fnFs)) # Put N-filterd files in filtN/ subdirectory
+fnRs.filtN <- file.path(path, "filtN", basename(fnRs))
+filterAndTrim(fnFs, fnFs.filtN, fnRs, fnRs.filtN, maxN = 0, multithread = TRUE)
+
+primerHits <- function(primer, fn) {
+    # Counts number of reads in which the primer is found
+    nhits <- vcountPattern(primer, sread(readFastq(fn)), fixed = FALSE)
+    return(sum(nhits > 0))
+}
+rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs.filtN[[1]]), 
+    FWD.ReverseReads = sapply(FWD.orients, primerHits, fn = fnRs.filtN[[1]]), 
+    REV.ForwardReads = sapply(REV.orients, primerHits, fn = fnFs.filtN[[1]]), 
+    REV.ReverseReads = sapply(REV.orients, primerHits, fn = fnRs.filtN[[1]]))
+    
+    
+# QUIT R
+#ITS1
+mkdir 02_filtered
+for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 24 --minimum-length 100 -g CTTGGTCATTTAGAGGAAGTAA -a GAACCAGTAAATCTCCTTCATT -G GCTGCGTTCTTCATCGATGC -A TTACTTCCTCTAAATGACCAAG --discard-untrimmed -o 02_filtered/${i//_R1_001.fastq.gz/_R1_001.fastq.gz} -p 02_filtered/${i//_R1_001.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > 02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+chmod +x run_cutadapt2.cmd
+./run_cutadapt2.cmd
+cd 02_filtered
+mkdir 02_logs
+mv *log.txt 02_logs
+grep "passing" 02_logs/* > summary_primer_trimming.txt
+
+# how any lines in a file without decompressing it
+gzip -d -c file.gz | wc -l 
+
+
+R
+library(dada2)
+path <- (".")
+list.files(path)
+# Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
+fnFs <- sort(list.files(path, pattern="_R1_001.fastq.gz", full.names = TRUE))
+fnRs <- sort(list.files(path, pattern="_R2_001.fastq.gz", full.names = TRUE))
+# Extract sample names, assuming filenames have format: SAMPLENAME_XXX.fastq
+sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
+
+# Place filtered files in filtered/ subdirectory
+filtFs <- file.path(path, "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
+filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
+names(filtFs) <- sample.names
+names(filtRs) <- sample.names
+
+# 16s
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxN = 0, maxEE = c(2, 2), truncQ = 2, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = TRUE)
+head(out)
+
+#dereplicate reads
+derep_forward <- derepFastq(filtFs, verbose=TRUE)
+names(derep_forward) <- sample.names # the sample names in these objects are initially the file names of the samples, this sets them to the sample names for the rest of the workflow
+derep_reverse <- derepFastq(filtRs, verbose=TRUE)
+names(derep_reverse) <- sample.names
+
+# error models
+errF <- learnErrors(derep_forward, multithread=24, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=24, randomize=TRUE)
+
+dadaFs <- dada(derep_forward, err=errF, multithread=24, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=24, pool="pseudo")
+
+merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=50)
+
+seqtab <- makeSequenceTable(merged_amplicons)
+dim(seqtab)
+saveRDS(seqtab, "seqtab.rds")
+
+seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
+dim(seqtab.nochim)
+saveRDS(seqtab.nochim, "seqtab_nochim.rds")
+
+  # set a little function
+getN <- function(x) sum(getUniques(x))
+
+  # making a little table
+summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
+               filtered=out[,2], dada_f=sapply(dadaFs, getN),
+               dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
+write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
+
+seqtab.nochim <- readRDS("seqtab_nochim.rds")
+

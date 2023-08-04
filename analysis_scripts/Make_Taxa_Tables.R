@@ -55,12 +55,19 @@ ST = setNames(data.frame(t(ST[,-1])), ST[,1])
 #FT <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
 #GT <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
 #ST <- ST[ , -which(names(ST) %in% c("Unknown NA"))]
-write.table(KT, file = "Kingdom_taxonomy.txt", quote = FALSE, sep = "\t")
-write.table(PT, file = "Phylum_taxonomy.txt", quote = FALSE, sep = "\t")
-write.table(CT, file = "Class_taxonomy.txt", quote = FALSE, sep = "\t")
-write.table(OT, file = "Order_taxonomy.txt", quote = FALSE, sep = "\t")
-write.table(FT, file = "Family_taxonomy.txt", quote = FALSE, sep = "\t")
-write.table(GT, file = "Genus_taxonomy.txt", quote = FALSE, sep = "\t")
-write.table(ST, file = "Species_taxonomy.txt", quote = FALSE, sep = "\t")
-#return(list(KT=KT,PT=PT,CT=CT,OT=OT,FT=FT,GT=GT,ST=ST))
-#}
+KT <- KT %>% rownames_to_column("SampleID")
+PT <- PT %>% rownames_to_column("SampleID")
+CT <- CT %>% rownames_to_column("SampleID")
+OT <- OT %>% rownames_to_column("SampleID")
+FT <- FT %>% rownames_to_column("SampleID")
+GT <- GT %>% rownames_to_column("SampleID")
+ST <- ST %>% rownames_to_column("SampleID")
+write_tsv(KT, file = "Kingdom_taxonomy.txt")
+write_tsv(PT, file = "Phylum_taxonomy.txt")
+write_tsv(CT, file = "Class_taxonomy.txt")
+write_tsv(OT, file = "Order_taxonomy.txt")
+write_tsv(FT, file = "Family_taxonomy.txt")
+write_tsv(GT, file = "Genus_taxonomy.txt")
+write_tsv(ST, file = "Species_taxonomy.txt")
+return(list(PT=PT,CT=CT,OT=OT,FT=FT,GT=GT,ST=ST))
+}

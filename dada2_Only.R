@@ -14,8 +14,11 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
 # 16s
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,200), maxN=0, maxEE=c(2,4), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=12)
-head(out)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,200), maxN=0, maxEE=c(2,4), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
+out
+f2 <- list.files("filtered/")
+filtFs <- f2[grepl("_F_", f2) == TRUE]
+filtRs <- f2[grepl("_R_", f2) == TRUE]
 
 #dereplicate reads
 derep_forward <- derepFastq(filtFs, verbose=TRUE)
@@ -30,7 +33,7 @@ errR <- learnErrors(derep_reverse, multithread=4, randomize=TRUE)
 dadaFs <- dada(derep_forward, err=errF, multithread=4, pool="pseudo")
 dadaRs <- dada(derep_reverse, err=errR, multithread=4, pool="pseudo")
 
-merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=50)
+merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=20)
 
 seqtab <- makeSequenceTable(merged_amplicons)
 dim(seqtab)
@@ -52,13 +55,13 @@ write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quot
 seqtab.nochim <- readRDS("seqtab_nochim.rds")
 
 #TAXONOMY
-taxardp <- assignTaxonomy(seqtab.nochim, "../../dada2_pipeline/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
-taxardp<- addSpecies(taxardp, "../../dada2_pipeline/taxonomy/rdp_species_assignment_18.fa.gz")
+taxardp <- assignTaxonomy(seqtab.nochim, "/home/umii/goul0109/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
+taxardp<- addSpecies(taxardp, "/home/umii/goul0109/taxonomy/rdp_species_assignment_18.fa.gz")
 saveRDS(taxardp, file = "taxIDrdp.rds")
 
 
 #TAXONOMY
-taxasilva <- assignTaxonomy(seqtab.nochim, "/home/umii/goul0109/silva_nr_v138_train_set.fa.gz", multithread=TRUE)
-taxasilva <- addSpecies(taxasilva, "/home/umii/goul0109/silva_species_assignment_v138.1.fa.gz")
+taxasilva <- assignTaxonomy(seqtab.nochim, "/home/umii/goul0109/taxonomy/silva_nr99_v138.1_train_set.fa", multithread=TRUE)
+taxasilva <- addSpecies(taxasilva, "/home/umii/goul0109/taxonomy/silva_species_assignment_v138.1.fa")
 saveRDS(taxasilva, file = "taxIDsilva.rds")
 quit("no") 

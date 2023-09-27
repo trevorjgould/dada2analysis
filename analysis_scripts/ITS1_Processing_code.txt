@@ -1,10 +1,8 @@
-# remove adapters
-mkdir /scratch.global/goul0109/Moeller/01_adapter
-for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 150 -a TATGGTAATTGTGTGNCAGCNGCCGCGGTAA -g ATTAGANACCCNNGTAGTCCGGCTGGCTGACT -A AGTCAGCCAGCCGGACTACNVGGGTNTCTAAT -o /scratch.global/goul0109/Moeller/01_adapter/${i//_R1_001.fastq.gz/-cut_R1_001.fastq.gz} -p /scratch.global/goul0109/Moeller/01_adapter/${i//_R1_001.fastq.gz/-cut_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > /scratch.global/goul0109/Moeller/01_adapter/cutadapt.${i//_R1_001.fastq.gz/.log.txt}" >> /scratch.global/goul0109/Moeller/run_cutadapt.sh; done
-/scratch.global/goul0109/Moeller/
-chmod +x /scratch.global/goul0109/Moeller/run_cutadapt.sh
-/scratch.global/goul0109/Moeller/run_cutadapt.sh
-cd /scratch.global/goul0109/Moeller/01_adapter
+mkdir 01_adapter
+for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 150 -a TATGGTAATTGTGTGNCAGCNGCCGCGGTAA -g ATTAGANACCCNNGTAGTCCGGCTGGCTGACT -A AGTCAGCCAGCCGGACTACNVGGGTNTCTAAT -o 01_adapter/${i//_R1_001.fastq.gz/-cut_R1_001.fastq.gz} -p 01_adapter/${i//_R1_001.fastq.gz/-cut_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > 01_adapter/cutadapt.${i//_R1_001.fastq.gz/.log.txt}" >> run_cutadapt.sh; done
+chmod +x run_cutadapt.sh
+./run_cutadapt.sh
+cd 01_adapter    
 mkdir 01_logs
 mv cutadapt* 01_logs
 grep "passing" 01_logs/* > summary_adapter_trimming.txt
@@ -93,11 +91,11 @@ derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
 # error models
-errF <- learnErrors(derep_forward, multithread=24, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=24, randomize=TRUE)
+errF <- learnErrors(derep_forward, multithread=8, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=8, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=24, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=24, pool="pseudo")
+dadaFs <- dada(derep_forward, err=errF, multithread=8, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=8, pool="pseudo")
 
 merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=50)
 
@@ -120,3 +118,6 @@ write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quot
 
 seqtab.nochim <- readRDS("seqtab_nochim.rds")
 
+unite.ref <- "/home/umii/goul0109/sh_general_release_dynamic_18.07.2023.fasta"  # CHANGE ME to location on your machine
+taxa <- assignTaxonomy(seqtab.nochim, unite.ref, multithread = TRUE, tryRC = TRUE)
+saveRDS(taxa, file = "ITStaxID.rds")

@@ -45,17 +45,17 @@ out <- rarefyAt(newtable,sampler)
 
 # distance:
 d2.mes <- vegdist(FULL, method = "bray")
-PCOA <- pcoa(d2.mes)
+PCOA <- cmdscale(d2.mes, k = 3)
 # from diversity.R get brayWmeta
-brayWmeta$PC3pcoa <- PCOA$vectors[,3]
-brayWmeta$PC2pcoa <- PCOA$vectors[,2]
-brayWmeta$PC1pcoa <- PCOA$vectors[,1]
+brayWmeta$PC3pcoa <- PCOA[,3]
+brayWmeta$PC2pcoa <- PCOA[,2]
+brayWmeta$PC1pcoa <- PCOA[,1]
 
 # plotting
 # cage and Group NOT labelled
 color4 = c("#BB3717","#54969A","#B47F6D","#0F5372")
-PC1PC2 <- ggplot(brayWmeta, aes(PC1pcoa,PC2pcoa, color = as.factor(Cage))) + geom_point(size=2, aes(shape = Group)) + theme_bw() + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + scale_color_manual(values = color4,name = "Cage") + ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + stat_ellipse(aes(group=as.factor(Cage), type = "norm"))
-PC1PC3 <- ggplot(brayWmeta, aes(PC1pcoa,PC3pcoa, color = as.factor(Cage))) + geom_point(size=2, aes(shape = Group)) + theme_bw() + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + scale_color_manual(values = color4,name = "Cage") + ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + stat_ellipse(aes(group=as.factor(Cage), type = "norm"))
+PC1PC2 <- ggplot(brayWmeta, aes(PC1pcoa,PC2pcoa, color = Group)) + geom_point(size=2, aes(shape = Group)) + theme_bw() + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + scale_color_manual(values = color4,name = "Cage") + ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + stat_ellipse(aes(group=as.factor(Cage), type = "norm"))
+PC1PC3 <- ggplot(brayWmeta, aes(PC1pcoa,PC3pcoa, color = Group)) + geom_point(size=2, aes(shape = Group)) + theme_bw() + xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + scale_color_manual(values = color4,name = "Cage") + ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + stat_ellipse(aes(group=as.factor(Cage), type = "norm"))
 #combinded_plot2 <- PC1PC2 / PC1PC3
 combinded_plot2 <- gridExtra::grid.arrange(PC1PC2, PC1PC3, ncol = 1)
 plottitle <- paste0("RAREFIED_PCoA_PC12_PC13_continuous_Group_Cage_facet_timepoint_NOT_labelled.png")

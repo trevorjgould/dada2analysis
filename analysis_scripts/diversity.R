@@ -62,6 +62,51 @@ propdist <- sweep(newtable, 1, rowSums(newtable),'/')
 brayWmeta$shannon <- vegan::diversity(propdist, index = "shannon")
 brayWmeta$simpson <- vegan::diversity(propdist, index = "simpson")
 #brayWmeta$invsimpson <- vegan::diversity(propdist, index = "invsimpson")
+
+
+############
+# RAREFEACTION
+library(vegan)
+library(plyr)
+library(dplyr)
+# first we need to see what the sample counts look like to pick a sample number
+# get counts
+# This assumes samples = ROWS
+min(rowSums(newtable))
+hist(rowSums(newtable))
+sampler = min(rowSums(newtable))
+scount <- as.data.frame(rowSums(newtable))
+scount$col <- cut(scount$scount, breaks = c(-Inf,1000,Inf), labels = c("<1000",">1000"))
+p <- ggplot(scount, aes(x = scount)) + geom_dotplot(binwidth = 1000, aes(fill = col)) + geom_vline(xintercept = 1000, color = "red") + ylab("Samples") + xlab("Sequences") + scale_fill_manual(values = c("red","black"))
+
+if (sampler < 1000){
+  # set minimum sequences per sample
+  keepers <- rowSums(newtable)>1000
+  newtable <- newtable[keepers,]
+  sampler = 1000
+}
+
+# then we rarefy the datatable at chosen sample size
+rarefyAt <- function(newtable,sampler){
+  # we want to do rrarefy 1000 times and get the average   
+  # lets try with 10 first
+  res <- lapply(as.list(1:1000), function(x) rrarefy(newtable, sample=sampler))
+  FULL <- aaply(laply(res, as.matrix), c(2, 3), mean)
+  rm(res)
+  return(FULL)
+}
+out <- rarefyAt(newtable,sampler)
+# now we're going to compare the 1000 times rarefied table to the original run via clr transform
+
+# distance:
+d2.mes <- vegdist(FULL, method = "bray")
+PCOA <- cmdscale(d2.mes, k = 3, eig = TRUE)
+# from diversity.R get brayWmeta
+brayWmeta$PC3pcoa <- PCOA[,3]
+brayWmeta$PC2pcoa <- PCOA[,2]
+brayWmeta$PC1pcoa <- PCOA[,1]
+###################
+
 write.table(brayWmeta, file="proportional_diversity_stats.txt", quote = FALSE)
 return(brayWmeta)
 }

@@ -95,6 +95,7 @@ Taxonomy_Plots <- function(meta){
 
 
 Taxonomy_Plots_Top10 <- function(t,meta){
+  # t is number of taxa to keep. 
   # read in tables
   pal = c('#91bfdb','#ffffbf','#fc8d59')
   #meta <- read.table("Metadata_common.txt", sep = "\t", check.names = FALSE)
@@ -106,11 +107,7 @@ Taxonomy_Plots_Top10 <- function(t,meta){
   GT <- read.table(file = "Genus_taxonomy.txt", sep = "\t", check.names = FALSE)
   ST <- read.table(file = "Species_taxonomy.txt", sep = "\t", check.names = FALSE)
   
-  # Here we are taking the taxonomy tables created above
-  # taxa with less than a sum of 0.1 total proportion over all samples are merged
-  # into a column of OTHER with the NA column if it is present.
-  # NEXT IS TO DYNAMICALLY SET THE 0.1 TO LEAVE 20 TAXA TOTAL WITH OTHER AS REST.
-  taxa_list <- list(KT,PT,CT,OT,FT,GT,ST)
+taxa_list <- list(KT,PT,CT,OT,FT,GT,ST)
   taxa_names <- list("Kingdom","Phylum","Class","Order","Family","Genus","Species")
   for (x in 1:7){
     XT_other = 0

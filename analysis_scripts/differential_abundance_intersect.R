@@ -10,6 +10,7 @@ library(corncob)
 library(metagenomeSeq)
 library(DESeq2)
 library(phyloseq)
+library(dplyr)
 # usage:
 # Rscript differential_abundance_intersect.R asvtable metadata taxonomy outputname
 # assumes ASVtable is samplesAsRows
@@ -185,7 +186,7 @@ adjustedOnly$count <- rowSums(adjustedOnly <= 0.05)
 ConsensusAdjustedOnly <- subset(adjustedOnly, count > 1)
 ConsensusAdjustedOnly <- select(ConsensusAdjustedOnly, -ends_with("count"))
 write.table(ConsensusAdjustedOnly, file = "ConsensusSigadjustedOnly.txt", sep = "\t", quote = FALSE)
-vectorOfTables <- vector(mode = "list", length = N)
+vectorOfTables <- vector(mode = "list", length = 2)
 vectorOfTables[[1]] <- ConsensusPvalue
 vectorOfTables[[2]] <- ConsensusAdjustedOnly
 names(vectorOfTables) <- c("ConsensusPvalue","ConsensusAdjustedOnly")
@@ -197,3 +198,46 @@ both <- merge(asv2,groupings, by = "row.names")
 both <- column_to_rownames(both, var = "Row.names")
 melted <- melt(both)
 ggplot(melted, aes(Group,log(value))) + geom_boxplot() + facet_wrap(~variable) + theme_bw() + ylab("log(count)")
+
+library(UpSetR)
+# create UpSetR format table
+# here we need a table of 1 or 0 for sig/not 
+getUpset <- function(intab,cutoff){
+  oldrn <- rownames(intab)
+  row.names(intab) <- 1:nrow(intab)
+  intab2 <- intab
+  intab2[intab<=cutoff] = 1
+  intab2[intab>cutoff] = 0
+  intab2[is.na(intab2)] = 0
+  pdf(file="upsetR_plot.pdf",onefile=FALSE) # or other device
+  plot1 <- upset(intab2, order.by = "freq")
+  print(plot1)
+  dev.off()
+  return(intab2)
+}
+gu <- getUpset(vectorOfTables[[1]],0.05)
+
+# same thing for the adjusted table with one addition
+getUpsetAdjust <- function(intab,cutoff,aldecut){
+  oldrn <- rownames(intab)
+  row.names(intab) <- 1:nrow(intab)
+  intab2 <- intab
+  intab2[intab<=cutoff] = 1
+  intab2[intab>cutoff] = 0
+  intab2[is.na(intab2)] = 0
+  intab2[,1] = intab[,1]
+# aldex2 is not a p-value. greater than 1 is likely to be reproducible effect
+# here we set make the cutoff flexible 
+  good = intab2$ALDEx2_adj > aldecut
+  good["TRUE"] = 1
+  good["FALSE"] = 0
+  intab2$ALDEx2_adj = good[1:6]
+  pdf(file="Adjusted_upsetR_plot.pdf",onefile=FALSE) # or other device
+  plot2 <- upset(intab2, order.by = "freq", nsets = 6)
+  print(plot2)
+  dev.off()
+  rownames(intab2)<- oldrn
+  return(intab2)
+}
+
+gua <- getUpsetAdjust(vectorOfTables[[2]],0.05,1)

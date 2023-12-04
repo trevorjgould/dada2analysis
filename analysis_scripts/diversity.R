@@ -76,14 +76,17 @@ min(rowSums(newtable))
 hist(rowSums(newtable))
 sampler = min(rowSums(newtable))
 scount <- as.data.frame(rowSums(newtable))
-scount$col <- cut(scount$scount, breaks = c(-Inf,1000,Inf), labels = c("<1000",">1000"))
-p <- ggplot(scount, aes(x = scount)) + geom_dotplot(binwidth = 1000, aes(fill = col)) + geom_vline(xintercept = 1000, color = "red") + ylab("Samples") + xlab("Sequences") + scale_fill_manual(values = c("red","black"))
-
+print(paste("lowest sample size is: ", sampler))
 if (sampler < 1000){
+  print("Setting rarefaction threshold to: 1000")
   # set minimum sequences per sample
   keepers <- rowSums(newtable)>1000
   newtable <- newtable[keepers,]
   sampler = 1000
+  scount$col <- cut(scount$scount, breaks = c(-Inf,1000,Inf), labels = c("<1000",">1000"))
+  ggplot(scount, aes(x = scount)) + geom_dotplot(binwidth = 1000, aes(fill = col)) + geom_vline(xintercept = 1000, color = "red") + ylab("Samples") + xlab("Sequences") + scale_fill_manual(values = c("red","black"))
+} else {
+  print(paste("Setting rarefaction threshold to: ", sampler))
 }
 
 # then we rarefy the datatable at chosen sample size
@@ -97,18 +100,19 @@ rarefyAt <- function(newtable,sampler){
 }
 out <- rarefyAt(newtable,sampler)
 # now we're going to compare the 1000 times rarefied table to the original run via clr transform
-
+propdistout <- sweep(out, 1, rowSums(out),'/')
 # distance:
-d2.mes <- vegdist(FULL, method = "bray")
+d2.mes <- vegdist(propdistout, method = "bray")
 PCOA <- cmdscale(d2.mes, k = 3, eig = TRUE)
 # from diversity.R get brayWmeta
-brayWmeta$PC3pcoa <- PCOA[,3]
-brayWmeta$PC2pcoa <- PCOA[,2]
-brayWmeta$PC1pcoa <- PCOA[,1]
+brayWmeta$PC3pcoa <- PCOA$points[,3]
+brayWmeta$PC2pcoa <- PCOA$points[,2]
+brayWmeta$PC1pcoa <- PCOA$points[,1]
 ###################
-
+round(PCOA$eig*100/sum(PCOA$eig),2)
 write.table(brayWmeta, file="proportional_diversity_stats.txt", quote = FALSE)
-return(brayWmeta)
+outlist <- list("brayWmeta"=brayWmeta,"PCOA" = PCOA)
+return(outlist)
 }
 ######################################################
 adonis_stats <- function(newmap,newtable,var1,var2){

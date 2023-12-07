@@ -29,7 +29,7 @@ UFout <- UniFrac(ps,TRUE)
 UFoutF <- UniFrac(ps,FALSE)
 outT <- cmdscale(UFout)
 outF <- cmdscale(UFoutF)
-all <- cbind(Aleksandra_metadata,outT,outF)
+all <- cbind(t2,outT,outF)
 colnames(all)[21] <- "Weighted1"
 colnames(all)[22] <- "Weighted2"
 colnames(all)[23] <- "UnWeighted1"

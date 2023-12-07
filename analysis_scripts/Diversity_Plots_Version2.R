@@ -149,8 +149,8 @@ unf <- function(j) {
   #if(j=="TimePoint") {mycolors = color3}
   #if(j=="Group") {mycolors = color4}
   mycolors = color4
-  w1w2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(Weighted1,Weighted2, colour = TimePoint)) + ggplot2::geom_point(size=2) + geom_line(aes(group = SamIDShort), alpha = 0.5, color = "grey") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::scale_color_manual(values = mycolors) + facet_wrap(~Group, ncol=3) + coord_fixed(ratio = 1)
-  uw1uw2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(UnWeighted1,UnWeighted2, colour = TimePoint)) + ggplot2::geom_point(size=2) + geom_line(aes(group = SamIDShort), alpha = 0.5, color = "grey") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::scale_color_manual(values = mycolors) + facet_wrap(~Group, ncol=3) + coord_fixed(ratio = 1)
+  w1w2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(Weighted1,Weighted2, colour = Group)) + ggplot2::geom_point(size=2) + geom_line(aes(group = Sample), alpha = 0.5, color = "grey") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::scale_color_manual(values = mycolors) + facet_wrap(~Group, ncol=3) + coord_fixed(ratio = 1)
+  uw1uw2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(UnWeighted1,UnWeighted2, colour = Group)) + ggplot2::geom_point(size=2) + geom_line(aes(group = Sample), alpha = 0.5, color = "grey") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::scale_color_manual(values = mycolors) + facet_wrap(~Group, ncol=3) + coord_fixed(ratio = 1)
   #combinded_plot2 <- PC1PC2 / PC1PC3
   combinded_plot2 <- gridExtra::grid.arrange(w1w2, uw1uw2, ncol = 1)
   plottitle <- paste0("unifrac_continuous_facet_timepoint.png")
@@ -161,8 +161,8 @@ unf <- function(j) {
   #if(j=="TimePoint") {mycolors = color3}
   #if(j=="Group") {mycolors = color4}
   mycolors = color4
-  w1w2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(Weighted1,Weighted2, colour = TimePoint)) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::scale_color_manual(values = mycolors) + facet_wrap(TimePoint~Group, ncol=3) + coord_fixed(ratio = 1)
-  uw1uw2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(UnWeighted1,UnWeighted2, colour = TimePoint)) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::scale_color_manual(values = mycolors) + facet_wrap(TimePoint~Group, ncol=3) + coord_fixed(ratio = 1)
+  w1w2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(Weighted1,Weighted2, colour = Group)) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::scale_color_manual(values = mycolors) + facet_wrap(~Group, ncol=3) + coord_fixed(ratio = 1)
+  uw1uw2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(UnWeighted1,UnWeighted2, colour = Group)) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::scale_color_manual(values = mycolors) + facet_wrap(~Group, ncol=3) + coord_fixed(ratio = 1)
   #combinded_plot2 <- PC1PC2 / PC1PC3
   combinded_plot2 <- gridExtra::grid.arrange(w1w2, uw1uw2, ncol = 1)
   plottitle <- paste0("unifrac_continuous_facet_timepoint_group.png")
@@ -170,4 +170,26 @@ unf <- function(j) {
 
   }
 unf("Group")
-
+# simplified version
+#unifraq
+# ggplot functions for PCoAs
+unf <- function(j) {
+    #if(j=="TimePoint") {mycolors = color3}
+    #if(j=="Group") {mycolors = color4}
+    w1w2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(Weighted1,Weighted2, colour = Group)) + ggplot2::geom_point(size=2) + geom_line(aes(group = Sample), alpha = 0.5, color = "grey") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + coord_fixed(ratio = 1)
+    uw1uw2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(UnWeighted1,UnWeighted2, colour = Group)) + ggplot2::geom_point(size=2) + geom_line(aes(group = Sample), alpha = 0.5, color = "grey") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + coord_fixed(ratio = 1)
+    combinded_plot2 <- w1w2 / uw1uw2
+    plottitle <- paste0("unifrac_continuous_facet_timepoint.png")
+    ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 6, width = 6, units = "in")
+    
+    #if(j=="TimePoint") {mycolors = color3}
+    #if(j=="Group") {mycolors = color4}
+    w1w2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(Weighted1,Weighted2, colour = Group)) + ggplot2::geom_point(size=2, alpha = 0.75) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + coord_fixed(ratio = 1)
+    uw1uw2 <- ggplot2::ggplot(metadata_with_unifrac, ggplot2::aes(UnWeighted1,UnWeighted2, colour = Group)) + ggplot2::geom_point(size=2, alpha = 0.75) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + coord_fixed(ratio = 1)
+    combinded_plot2 <- w1w2 / uw1uw2
+    plottitle <- paste0("unifrac_continuous_facet_timepoint_group.png")
+    ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 6, width = 6, units = "in")
+    ggplot2::ggsave(w1w2, file="Weighted_Unifrac_group.png", dpi=800, height = 6, width = 6, units = "in")
+	ggplot2::ggsave(uw1uw2, file="UnWeighted_Unifrac_group.png", dpi=800, height = 6, width = 6, units = "in")
+}
+unf("Group")

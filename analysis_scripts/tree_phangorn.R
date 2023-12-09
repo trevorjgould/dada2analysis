@@ -5,8 +5,8 @@ library(phyloseq)
 library(ggplot2)
 library(DECIPHER)
 library(phangorn)
-inputtable <- readRDS("seqtab")
-t2 <- outtab$newmap
+set.seed(1234)
+t2 <- read.table("metadata.txt")
 taxa <- readRDS("taxID.rds")
 inputtable <- readRDS("seqtab_nochim.rds")
 
@@ -35,3 +35,6 @@ outF <- cmdscale(UFoutF)
 all <- cbind(t2,outT,outF)
 colnames(all) <- c(colnames(t2),"Weighted1","Weighted2","UnWeighted1","UnWeighted2")
 write.table(all, file = "metadata_with_unifrac.txt", quote = FALSE, sep = "\t")
+tout <- as.data.frame(as.matrix(UFout))
+write.table(tout, file = "unifrac.dist.matrix.txt", sep = "\t", quote= FALSE)
+metadata_with_unifrac = all

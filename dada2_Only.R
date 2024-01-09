@@ -16,10 +16,11 @@ names(filtRs) <- sample.names
 # 16s
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,200), maxN=0, maxEE=c(2,4), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
 out
-f2 <- list.files("filtered/")
-filtFs <- f2[grepl("_F_", f2) == TRUE]
-filtRs <- f2[grepl("_R_", f2) == TRUE]
+#f2 <- list.files("filtered/")
+#filtFs <- f2[grepl("_F_", f2) == TRUE]
+#filtRs <- f2[grepl("_R_", f2) == TRUE]
 
+setwd("filtered/")
 #dereplicate reads
 derep_forward <- derepFastq(filtFs, verbose=TRUE)
 names(derep_forward) <- sample.names # the sample names in these objects are initially the file names of the samples, this sets them to the sample names for the rest of the workflow
@@ -27,11 +28,11 @@ derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
 # error models
-errF <- learnErrors(derep_forward, multithread=4, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=4, randomize=TRUE)
+errF <- learnErrors(derep_forward, multithread=8, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=8, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=4, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=4, pool="pseudo")
+dadaFs <- dada(derep_forward, err=errF, multithread=8, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=8, pool="pseudo")
 
 merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=20)
 

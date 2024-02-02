@@ -5,13 +5,13 @@ GTAGGTGAACCTGCAGAAGGATCA TG CTGACTGACT
 GTACACACCGCCCGTC
 # 18S euk R2 primer
 TGATCCTTCTGCAGGTTCACCTAC
-
-
+/home/umii/goul0109/scripts/primer_check2.sh {names of R1 file here}
+/home/umii/goul0109/scripts/fix_names.sh *
 ##########################
 # Data processing steps 
 # remove adapters
 mkdir 01_adapter
-for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 150 -a TATGGTAATTGTGTGNCAGCNGCCGCGGTAA -g ATTAGANACCCNNGTAGTCCGGCTGGCTGACT -A AGTCAGCCAGCCGGACTACNVGGGTNTCTAAT -o 01_adapter/${i//_R1_001.fastq.gz/-cut_R1_001.fastq.gz} -p 01_adapter/${i//_R1_001.fastq.gz/-cut_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > 01_adapter/cutadapt.${i//_R1_001.fastq.gz/.log.txt}" >> run_cutadapt.sh; done
+for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 150 -a TATGGTAATTGTGTGNCAGCNGCCGCGGTAA -g ATTAGANACCCNNGTAGTCCGGCTGGCTGACT -A AGTCAGCCAGCCGGACTACNVGGGTNTCTAAT -o 01_adapter/${i} -p 01_adapter/${i//_R1_/_R2_} ${i} ${i//_R1_/_R2_} > 01_adapter/cutadapt.${i//_R1_001.fastq.gz/.log.txt}" >> run_cutadapt.sh; done
 chmod +x run_cutadapt.sh
 ./run_cutadapt.sh
 cd 01_adapter    
@@ -23,7 +23,7 @@ grep "passing" 01_logs/* > summary_adapter_trimming.txt
 # remove primers
 mkdir ../02_filtered  
 #18S
-for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g GTACACACCGCCCGTC -G TGATCCTTCTGCAGGTTCACCTAC --discard-untrimmed -o ../02_filtered/${i//-cut_R1_001.fastq.gz/_R1_001.fastq.gz} -p ../02_filtered/${i//-cut_R1_001.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g GTACACACCGCCCGTC -G TGATCCTTCTGCAGGTTCACCTAC -a GTAGGTGAACCTGCAGAAGGATCA -A GACGGGCGGTGTGTAC --discard-untrimmed -o ../02_filtered/${i} -p ../02_filtered/${i//_R1_/_R2_} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
 
 chmod +x run_cutadapt2.cmd
 ./run_cutadapt2.cmd
@@ -86,6 +86,7 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
                filtered=out[,2], dada_f=sapply(dadaFs, getN),
                dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
+
 taxref <- "/home/umii/goul0109/pr2_version_5.0.0_SSU_dada2.fasta.gz" 
 taxaPR2 <- assignTaxonomy(seqtab.nochim, taxref, multithread=TRUE, minBoot = 95, verbose = TRUE, taxLevels=c("Kingdom", "Supergroup", "Division", "Class", "Order", "Family", "Genus", "Species"))
 saveRDS(taxaPR2, file = "18StaxID.rds")

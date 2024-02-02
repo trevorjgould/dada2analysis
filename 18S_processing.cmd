@@ -87,6 +87,10 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
                dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
-taxref <- "/home/umii/goul0109/pr2_version_5.0.0_SSU_dada2.fasta.gz" 
-taxaPR2 <- assignTaxonomy(seqtab.nochim, taxref, multithread=TRUE, minBoot = 95, verbose = TRUE, taxLevels=c("Kingdom", "Supergroup", "Division", "Class", "Order", "Family", "Genus", "Species"))
+taxrefa <- "/home/umii/goul0109/maarjam_dada2.txt"
+taxa <- assignTaxonomy(seqtab.nochim, taxrefa, tryRC = TRUE, taxLevels = c("Class", "Order", "Family", "Genus", "Species"), multithread = TRUE)
+saveRDS(taxamaar, file = "18SmaarjamtaxID.rds")
+
+taxrefb <- "/home/umii/goul0109/pr2_version_5.0.0_SSU_dada2.fasta.gz" 
+taxaPR2 <- assignTaxonomy(seqtab.nochim, taxrefb, multithread=TRUE, minBoot = 95, verbose = TRUE, taxLevels=c("Kingdom", "Supergroup", "Division", "Class", "Order", "Family", "Genus", "Species"))
 saveRDS(taxaPR2, file = "18StaxID.rds")

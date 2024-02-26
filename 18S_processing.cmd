@@ -23,7 +23,10 @@ grep "passing" 01_logs/* > summary_adapter_trimming.txt
 # remove primers
 mkdir ../02_filtered  
 #18S
-for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g GTACACACCGCCCGTC -G TGATCCTTCTGCAGGTTCACCTAC -a GTAGGTGAACCTGCAGAAGGATCA -A GACGGGCGGTGTGTAC --discard-untrimmed -o ../02_filtered/${i} -p ../02_filtered/${i//_R1_/_R2_} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+#for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g GTACACACCGCCCGTC -G TGATCCTTCTGCAGGTTCACCTAC -a GTAGGTGAACCTGCAGAAGGATCA -A GACGGGCGGTGTGTAC --discard-untrimmed -o ../02_filtered/${i} -p ../02_filtered/${i//_R1_/_R2_} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+#18S WANDA1 AML2
+for i in *_R1_001.fastq.gz; do echo "~/.local/bin/cutadapt --cores 4 --minimum-length 100 --discard-untrimmed -g CAGCCGCGGTAATTCCAGCT -G GAACCCAAACACTTTGGTTTCC -a AGCTGGAATTACCGCGGCTG -A GGAAACCAAAGTGTTTGGGTTC --discard-untrimmed -o ../02_filtered/${i} -p ../02_filtered/${i//_R1_/_R2_} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+
 
 chmod +x run_cutadapt2.cmd
 ./run_cutadapt2.cmd
@@ -31,6 +34,9 @@ cd ../02_filtered/
 mkdir 02_logs
 mv *log.txt 02_logs
 grep "passing" 02_logs/* > summary_primer_trimming.txt
+
+module load fastqc 
+fastqc a few files to understand length and quality
 
 module load R
 R
@@ -52,7 +58,6 @@ names(filtRs) <- sample.names
 
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncQ=5, truncLen=c(230,185),maxEE=c(2,4), matchIDs=TRUE, maxN = 0, rm.phix=TRUE, multithread=TRUE, verbose = TRUE)
 head(out)
-
 
 #dereplicate reads
 derep_forward <- derepFastq(filtFs, verbose=TRUE)

@@ -56,7 +56,7 @@ filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
 names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncQ=5, truncLen=c(230,185),maxEE=c(2,4), matchIDs=TRUE, maxN = 0, rm.phix=TRUE, multithread=TRUE, verbose = TRUE)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncQ=5,maxEE=c(2,4), matchIDs=TRUE, maxN = 0, rm.phix=TRUE, multithread=TRUE, verbose = TRUE)
 head(out)
 
 #dereplicate reads
@@ -92,15 +92,11 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
                dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
-taxrefa <- "/home/umii/goul0109/maarjam_dada2.txt"
+taxrefa <- "/home/kennedyp/shared/taxonomy/maarjam_dada2.txt"
 taxa <- assignTaxonomy(seqtab.nochim, taxrefa, tryRC = TRUE, taxLevels = c("Class", "Order", "Family", "Genus", "Species"), multithread = TRUE)
 saveRDS(taxamaar, file = "18SmaarjamtaxID.rds")
 
-taxrefb <- "/home/umii/goul0109/pr2_version_5.0.0_SSU_dada2.fasta.gz" 
+taxrefb <- "/home/kennedyp/shared/taxonomy/pr2_version_5.0.0_SSU_dada2.fasta.gz" 
 taxaPR2 <- assignTaxonomy(seqtab.nochim, taxrefb, multithread=TRUE, minBoot = 95, verbose = TRUE, taxLevels=c("Kingdom", "Supergroup", "Division", "Class", "Order", "Family", "Genus", "Species"))
 saveRDS(taxaPR2, file = "18StaxID.rds")
 
-
-
-for i in *_R1_001.fastq.gz; do echo "cutadapt --cores 4 --minimum-length 150 -a TATGGTAATTGTGTGNCAGCNGCCGCGGTAA -g ATTAGANACCCNNGTAGTCCGGCTGGCTGACT -A AGTCAGCCAGCCGGACTACNVGGGTNTCTAAT -o 01_adapter/${i} -p 01_adapter/${i//_R1_/_R2_} ${i} ${i//_R1_/_R2_} > 01_adapter/cutadapt.${i//_R1_001.fastq.gz/.log.txt}" >> run_cutadapt.sh; done
-chmod +x run_cutadapt.sh

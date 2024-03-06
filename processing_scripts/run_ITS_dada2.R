@@ -14,13 +14,9 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
 # 16s
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,200), maxN=0, maxEE=c(2,4), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
-out
-#f2 <- list.files("filtered/")
-#filtFs <- f2[grepl("_F_", f2) == TRUE]
-#filtRs <- f2[grepl("_R_", f2) == TRUE]
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxN = 0, maxEE = c(2, 2), truncQ = 2, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = TRUE)
+head(out)
 
-setwd("filtered/")
 #dereplicate reads
 derep_forward <- derepFastq(filtFs, verbose=TRUE)
 names(derep_forward) <- sample.names # the sample names in these objects are initially the file names of the samples, this sets them to the sample names for the rest of the workflow
@@ -28,13 +24,13 @@ derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
 # error models
-errF <- learnErrors(derep_forward, multithread=8, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=8, randomize=TRUE)
+errF <- learnErrors(derep_forward, multithread=24, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=24, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=8, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=8, pool="pseudo")
+dadaFs <- dada(derep_forward, err=errF, multithread=24, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=24, pool="pseudo")
 
-merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=20)
+merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=50)
 
 seqtab <- makeSequenceTable(merged_amplicons)
 dim(seqtab)
@@ -53,16 +49,9 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
                dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
-seqtab.nochim <- readRDS("seqtab_nochim.rds")
-
-#TAXONOMY
-taxardp <- assignTaxonomy(seqtab.nochim, "/home/umii/goul0109/taxonomy/rdp_train_set_18.fa.gz", multithread=TRUE)
-taxardp<- addSpecies(taxardp, "/home/umii/goul0109/taxonomy/rdp_species_assignment_18.fa.gz")
-saveRDS(taxardp, file = "taxIDrdp.rds")
-
-
-#TAXONOMY
-taxasilva <- assignTaxonomy(seqtab.nochim, "/home/umii/goul0109/taxonomy/silva_nr99_v138.1_train_set.fa", multithread=TRUE)
-taxasilva <- addSpecies(taxasilva, "/home/umii/goul0109/taxonomy/silva_species_assignment_v138.1.fa")
-saveRDS(taxasilva, file = "taxIDsilva.rds")
-quit("no") 
+ref <- "/home/umii/goul0109/sh_general_release_dynamic_s_all_25.07.2023_dev.fasta"
+taxa <- assignTaxonomy(seqtab.nochim, ref, multithread = TRUE)
+saveRDS(taxa, file = "taxa.rds")
+#
+both <- cbind(t(seqtab.nochim),taxa)
+write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE, col.names=NA)

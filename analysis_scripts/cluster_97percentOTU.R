@@ -1,12 +1,13 @@
+# module load R/4.3.0-openblas
 library(tibble)
 library(dplyr)
 # Packages that are required but not loaded:
 # library(DECIPHER)
 # library(Biostrings)
 
-nproc <- 4 # set to number of cpus/processors to use for the clustering
+nproc <- 24 # set to number of cpus/processors to use for the clustering
 seqtab <- readRDS("seqtab_nochim.rds")
-taxa <- readRDS("18SmaarjamtaxID.rds")
+taxa <- readRDS("taxa.rds")
 
 asv_sequences <- colnames(seqtab)
 sample_names <- rownames(seqtab)
@@ -26,8 +27,7 @@ clusters <- DECIPHER::TreeLine(
   
 ## Use dplyr to merge the columns of the seqtab matrix for ASVs in the same OTU
 # prep by adding sequences to the `clusters` data frame
-clusters <- clusters %>%
-  add_column(sequence = asv_sequences)
+clusters <- clusters %>% add_column(sequence = asv_sequences)
 
 merged_seqtab <- seqtab %>% 
   t %>%

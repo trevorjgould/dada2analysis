@@ -1,4 +1,3 @@
-
 library(dada2)
 path <- (".")
 list.files(path)
@@ -14,8 +13,7 @@ filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
 names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
-# 16s
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxN = 0, maxEE = c(2, 2), truncQ = 2, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = TRUE)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncQ=5, minLen = 100, maxEE=c(2,4), matchIDs=TRUE, maxN = 0, rm.phix=TRUE, multithread=TRUE, verbose = TRUE)
 head(out)
 
 #dereplicate reads
@@ -25,21 +23,28 @@ derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
 # error models
-errF <- learnErrors(derep_forward, multithread=24, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=24, randomize=TRUE)
+errF <- learnErrors(derep_forward, multithread=8, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=8, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=24, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=24, pool="pseudo")
+dadaFs <- dada(derep_forward, err=errF, multithread=8, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=8, pool="pseudo")
 
-merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=50)
+merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=10)
 
 seqtab <- makeSequenceTable(merged_amplicons)
 dim(seqtab)
 saveRDS(seqtab, "seqtab.rds")
 
-seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
+# Assumes seqtab is your sequence table of merged sequences
+MINLEN <- 400
+MAXLEN <- 600
+seqlens <- nchar(getSequences(seqtab))
+seqtab.filt <- seqtab[,seqlens >= MINLEN & seqlens <= MAXLEN]
+
+seqtab.nochim <- removeBimeraDenovo(seqtab.filt, method="consensus", multithread=TRUE, verbose=TRUE)
 dim(seqtab.nochim)
 saveRDS(seqtab.nochim, "seqtab_nochim.rds")
+
 
   # set a little function
 getN <- function(x) sum(getUniques(x))
@@ -50,5 +55,13 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
                dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
-taxa <- assignTaxonomy(seqtab.nochim, "/home/umii/goul0109/sh_general_release_dynamic_all_29.11.2022.fasta", multithread = TRUE)
-saveRDS(taxa, file = "taxa.rds")
+taxrefa <- "/home/umii/goul0109/maarjam_dada2.txt"
+taxa <- assignTaxonomy(seqtab.nochim, taxrefa, tryRC = TRUE, taxLevels = c("Class", "Order", "Family", "Genus", "Species"), multithread = TRUE, outputBootstraps = TRUE)
+saveRDS(taxa, file = "18SmaarjamtaxID.rds")
+
+#taxrefb <- "/home/kennedyp/shared/taxonomy/pr2_version_5.0.0_SSU_dada2.fasta.gz" 
+#taxaPR2 <- assignTaxonomy(seqtab.nochim, taxrefb, multithread=TRUE, minBoot = 95, verbose = TRUE, taxLevels=c("Kingdom", "Supergroup", "Division", "Class", "Order", "Family", "Genus", "Species"), outputBootstraps = TRUE)
+#saveRDS(taxaPR2, file = "18StaxID.rds")
+
+both <- cbind(t(seqtab.nochim),taxa)
+write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE, col.names=NA)

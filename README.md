@@ -1,24 +1,22 @@
 ![logo](/images/Picture1.png)
-**The output from this pipeline is:**
-1) combined tables for use in analysis
-2) plots
- - alpha diversity
- - beta diversity
- - taxonomy plots
-3) statistical analysis
-4) summary plots
 
 **Processing of raw sequence data**
+
   Each Method (16S/ITS/18S) is treated differently
   1) trim_(16S/ITS/18S).sh
        runs cutadapt to remove adapters and primers
        primers are specific to your experimental design so adjust accordingly
   2) run_(16S/ITS/18S)_dada2.R
        runs dada2 on your samples
+       
        filterAndTrim is specific to the length of your reads and type of read
+       
        mergePairs overlap is specific to the variable region length
+       
        taxonony references are specific to your experimental design 
+       
        see: https://benjjneb.github.io/dada2/training.html for reference files
+       
        recommend using references with outgroups ie ("All eukaryotes") when possible. 
 
 **Analysis of dada2 output**
@@ -44,3 +42,11 @@ sequence_count_plot(sequence_count_table)
 brayWmeta <- diversity(outtab$newmap,outtab$newtable)
 Diversity_Plots(brayWmeta, outtab$newmap)
 ```
+**The output from this pipeline is:**
+1) combined tables for use in analysis
+2) plots
+ - alpha diversity
+ - beta diversity
+ - taxonomy plots
+3) statistical analysis
+4) summary plots

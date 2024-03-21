@@ -8,8 +8,24 @@
 3) statistical analysis
 4) summary plots
 
+**Processing of raw sequence data**
+  Each Method (16S/ITS/18S) is treated differently
+  1) trim_(16S/ITS/18S).sh
+       runs cutadapt to remove adapters and primers
+       primers are specific to your experimental design so adjust accordingly
+  2) run_(16S/ITS/18S)_dada2.R
+       runs dada2 on your samples
+       filterAndTrim is specific to the length of your reads and type of read
+       mergePairs overlap is specific to the variable region length
+       taxonony references are specific to your experimental design 
+       see: https://benjjneb.github.io/dada2/training.html for reference files
+       recommend using references with outgroups ie ("All eukaryotes") when possible. 
 
-**Example:**
+**Analysis of dada2 output**
+**You need the following files**
+1) seqtab output file from dada2
+2) metadata with sample names matching seqtab output **PROVIDED BY USER**
+3) taxonomy file with sequences matching seqtab output and taxa output from IDtaxa in R
 ```
 # input dada2 sequence table
 t1 <- readRDS('seqtab_nochim.rds')
@@ -28,68 +44,3 @@ sequence_count_plot(sequence_count_table)
 brayWmeta <- diversity(outtab$newmap,outtab$newtable)
 Diversity_Plots(brayWmeta, outtab$newmap)
 ```
-
-
-
-**Processing of 16S sequences**
-  - dada2_16S_processing.pbs > dada2_version2.R
-
-- User Provided
-  - metadata.txt
-
-**Run Dada2**
-input | output
---------- | ---------
-sequence data | seqtab_nochim.rds
- . | taxID.rds
-
-
-**You need the following files**
-1) seqtab output file from dada2
-2) metadata with sample names matching seqtab output **PROVIDED BY USER**
-3) taxonomy file with sequences matching seqtab output and taxa output from IDtaxa in R
-
-**Make_Tables.R**
-input | output
---------- | ---------
-seqtab_nochim.rds | Sequence_table_common.rds
-metadata.txt | Metadata_common.txt
-taxID.rds | combined_taxa.txt
-
-
-**Make_Taxa_Tables.R**
-input | output
---------- | ---------
-Metadata_common.txt | Kingdom_taxonomy.txt
-combined_taxa.txt | Phylum_taxonomy.txt
-.  | Class_taxonomy.txt
-.  | Order_taxonomy.txt
-.  | Family_taxonomy.txt
-.  | Genus_taxonomy.txt
-
-**Taxonomy_Plots.R**
-input | output
---------- | ---------
-Kingdom_taxonomy.txt | Kingdom_taxonomy_other.png
-Phylum_taxonomy.txt | Phylum_taxonomy_other.png
-Class_taxonomy.txt | Class_taxonomy_other.png
-Order_taxonomy.txt | Order_taxonomy_other.png
-Family_taxonomy.txt | Family_taxonomy_other.png
-Genus_taxonomy.txt | Genus_taxonomy_other.png
-Metadata_common.txt | 
-
-**Diversity.R**
-input | output
---------- | ---------
-Sequence_table_common.rds | proportional_diversity_stats.txt
-Metadata_common.txt | 
-
-**Diversity_plots_.R**
-input | output
---------- | ---------
-proportional_diversity_stats.txt | 
-
-**Sequence_count_plot.R**
-input | output
---------- | ---------
-final_sequence_count.txt | sequence_count_plot.png

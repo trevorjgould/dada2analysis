@@ -49,9 +49,9 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
                dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
-ref <- "/home/umii/goul0109/sh_general_release_dynamic_s_all_25.07.2023_dev.fasta"
+ref <- "/home/umii/public/dada2_taxonomy_references/sh_general_release_dynamic_s_all_25.07.2023_dev.fasta"
 taxa <- assignTaxonomy(seqtab.nochim, ref, multithread = TRUE)
 saveRDS(taxa, file = "taxa.rds")
 #
 both <- cbind(t(seqtab.nochim),taxa)
-write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE, col.names=NA)
+write.table(both, file = "ITS_combined_sequences_taxa.txt", sep = "\t", quote = FALSE, col.names=NA)

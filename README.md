@@ -3,10 +3,11 @@
 **Processing of raw sequence data**
 
   Each Method (16S/ITS/18S) is treated differently
-  1) trim_(16S/ITS/18S).sh
+  1) **trim_(16S/ITS/18S).sh**
+       
        runs cutadapt to remove adapters and primers
        primers are specific to your experimental design so adjust accordingly
-  2) run_(16S/ITS/18S)_dada2.R
+  2) **run_(16S/ITS/18S)_dada2.R**
        runs dada2 on your samples
        
        filterAndTrim is specific to the length of your reads and type of read
@@ -19,7 +20,10 @@
        
        recommend using references with outgroups ie ("All eukaryotes") when possible. 
 
-**Analysis of dada2 output**
+
+
+**R - Analysis of dada2 output**
+
 **You need the following files**
 1) seqtab output file from dada2
 2) metadata with sample names matching seqtab output **PROVIDED BY USER**

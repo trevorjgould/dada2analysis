@@ -23,7 +23,7 @@ mv *log.txt 02_logs
 grep "passing" 02_logs/* > summary_primer_trimming.txt
 
 
-module load R
+module load R/4.1.0
 R
 
 library(dada2)

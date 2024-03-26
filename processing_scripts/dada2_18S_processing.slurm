@@ -7,6 +7,6 @@
 
 cd /location/of/fastq.gz/files/
 module load R/4.1.0
-/location/of/scripts/trim_18S.sh
+./trim_18S.sh
 cd 02_filtered/
-Rscript /location/of/scripts/run_18S_dada2.R
+Rscript ../run_18S_dada2.R

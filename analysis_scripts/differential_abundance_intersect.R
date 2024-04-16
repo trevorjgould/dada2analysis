@@ -14,13 +14,14 @@ library(dplyr)
 # usage:
 # Rscript differential_abundance_intersect.R asvtable metadata taxonomy outputname
 # assumes ASVtable is samplesAsRows
+# assumes your groupings vector contains ONLY TWO GROUPS
 # read in dataset
 dai <- function(ASV_table, groupings, taxa, outputname){
 #### testing ####
 # setwd("~/Documents/xrevelo3_output/processing/")
-# ASV_table = readRDS("seqtab_nochim.rds")
+#ASV_table = readRDS("seqtab_nochim.rds")
 # groupings <- read.delim("metadata_2column.txt", row.names = 1)
-# taxa <- readRDS("taxIDsilva.rds")
+#taxa <- readRDS("taxIDsilva.rds")
 # studyname <- "output_dir"
 #################
 # if standalone script
@@ -36,8 +37,10 @@ dai <- function(ASV_table, groupings, taxa, outputname){
 
 # single column of grouping variable only
 groupings = groupings[,1]
+colnames(groupings) <- "group"
 
 # create input for x tool
+print("creating tables")
 samplesAsRows <- ASV_table
 samplesAsColumns <- as.data.frame(t(ASV_table))
 phyloseqObject <- phyloseq(otu_table(ASV_table, taxa_are_rows = FALSE), sample_data(groupings), tax_table(taxa))
@@ -47,35 +50,39 @@ ancombcobject = mia::makeTreeSummarizedExperimentFromPhyloseq(phyloseqObject)
   # https://www.bioconductor.org/packages/devel/bioc/manuals/ALDEx2/man/ALDEx2.pdf
   # reads: A non-negative, integer-only data.frame or matrix with unique names for all rows and columns. Rows should contain genes and columns should contain sequencing read counts (i.e., sample vectors). Rows with 0 reads in each sample are deleted prior to analysis.
   # conditions: A character vector. A description of the data structure used for testing. Typically, a vector of group labels. For aldex.glm, use a model.matrix.
-ALDEx2_results <- aldex(reads=samplesAsColumns, conditions = groupings[,1], mc.samples = 128, 
+print("running ALDEx2")
+ALDEx2_results <- aldex(reads=samplesAsColumns, conditions = groupings$group, mc.samples = 128, 
                         test="t", effect=TRUE, include.sample.summary = FALSE, 
                         verbose=T, denom="all")
 filename1 <- paste0(studyname,"_ALDEx2_result.txt")
 write.table(ALDEx2_results, file=filename1, quote=FALSE, sep='\t', col.names = NA)
-
+print("finished ALDEx2")
 # run ANCOMBC
 # https://www.bioconductor.org/packages/release/bioc/vignettes/ANCOMBC/inst/doc/ANCOMBC.html
 # phyloseq input
 # currently running ancombc2
+print("running ANCOMBC")
 ANCOMBC_results <- ancombc2(data = ancombcobject, struc_zero = "TRUE", group = colnames(groupings[1]), 
                             alpha=0.05, p_adj_method = "holm", fix_formula = colnames(groupings[1]))
 filename2 <- paste0(studyname,"_ANCOMBC_result.txt")
 write.table(ANCOMBC_results$res, file=filename2, quote=FALSE, sep='\t', col.names = NA)
-
+print("finished ANCOMBC")
 # run Maaslin2
 # input_data: tab delimited, features as columns, samples as rows
 # input_metadata: tab delimited, metadata as columns, samples as rows
+print("running Maaslin2")
 Maaslin2_results <- Maaslin2(samplesAsRows, groupings, outputname, transform = "LOG", 
                              fixed_effects = c(colnames(groupings[1])), standardize = FALSE, 
                              plot_heatmap = F, plot_scatter = F)
 
 filename3 <- paste0(studyname,"_Maaslin2_result.txt")
 write.table(Maaslin2_results$results, file=filename3, quote=FALSE, sep='\t', col.names = NA)
-
+print("finished Maaslin2")
 # run corncob
 # phyloseq input
 # https://cran.r-project.org/web/packages/corncob/corncob.pdf
 # https://rdrr.io/github/bryandmartin/corncob/man/differentialTest.html
+print("running corncob")
 my_formula <- as.formula(paste("~",colnames(groupings[1]),sep=" ", collapse = ""))
 corncob_results <- corncob::differentialTest(formula= my_formula,
                                      phi.formula = my_formula, phi.formula_null = my_formula,
@@ -87,10 +94,11 @@ ccfdr <- as.data.frame(corncob_results$p_fdr)
 ccfdr$p = corncob_results$p
 colnames(ccfdr) <- c("Pvaluefdr","Pvalue")
 write.table(ccfdr, file=filename4, quote=FALSE, sep='\t', col.names = NA)
-
+print("finished corncob")
 # run metagenomeSeq
 # data: rows = features, columns = samples
 # takes metagenomeSeqObject
+print("running metagenomeSeq")
 p <- cumNormStatFast(metagenomeSeqObject)
 metagenomeSeqObject2 <- cumNorm(metagenomeSeqObject, p = p)
 pd <- pData(metagenomeSeqObject2)
@@ -99,9 +107,10 @@ regres <- fitFeatureModel(metagenomeSeqObject2, mod)
 metagenomeSeq_result <- MRfulltable(regres, number = nrow(featureData(metagenomeSeqObject)))
 filename5 <- paste0(outputname,"_metagenomeSeq_result.txt")
 write.table(metagenomeSeq_result, file=filename5, quote=FALSE, sep='\t', col.names = NA)
-
+print("finished metagenomeSeq")
 # run DESeq2
 # columns: samples
+print("running deseq2")
 dds <- DESeq2::DESeqDataSetFromMatrix(countData = samplesAsColumns,
                                       colData=groupings,
                                       design = ~ colnames(groupings[1]))
@@ -111,7 +120,7 @@ rownames(res) <- res$row
 deseq2_result <- res[,-1]
 filename6 <- paste0(outputname,"_deseq2_result.txt")
 write.table(deseq2_result, file=filename6, quote=FALSE, sep="\t", col.names = NA)
-
+print("finished deseq2")
 # We now have 6 tables of results that need to be combined
 # ALDEx2_result
 # ANCOMBC_result
@@ -119,7 +128,7 @@ write.table(deseq2_result, file=filename6, quote=FALSE, sep="\t", col.names = NA
 # corncob_result
 # metagenomeSeq_result
 # deseq2_result
-
+print("combining methods")
 results_tables <- list.files(path = ".", pattern = "*_result.txt")
 if (length(results_tables)<6){
   print0("Only found ",length(results_tables)," results tables. Something went wrong.")
@@ -149,7 +158,7 @@ dflist <- list(df1, df2, df3, df4, df5, df6)
 dfall <- dflist %>% reduce(full_join, by='seqid')
 filename7 <- paste0(studyname,"_merged_all_result.txt")
 write.table(dfall, file=filename7, quote=FALSE, sep='\t', col.names = NA)
-
+print("calculating results")
 # next we will take the combined result of that function "dfall" 
 # and present results 
 # split full table by Pvalue and adj Pvalue
@@ -163,6 +172,7 @@ adjustedOnly <- read.table("adjustedOnly.txt", header = TRUE, row.names = 1)
 PvalueOnly <- read.table("PvalueOnly.txt", header = TRUE, row.names = 1)
 
 # heatmaps but not terribly useful in larger datasets
+print("making heatmaps")
 p2 <- filter(PvalueOnly, rowSums(is.na(PvalueOnly))<=1)
 a2 <- filter(adjustedOnly, rowSums(is.na(adjustedOnly))<=1)
 superheat(p2, pretty.order.rows = TRUE, pretty.order.cols = TRUE, heat.pal = c("#2D5C4F","#829D7D","#5E8CF"),heat.pal.values = c(0,0.05,1))
@@ -190,9 +200,12 @@ vectorOfTables <- vector(mode = "list", length = 2)
 vectorOfTables[[1]] <- ConsensusPvalue
 vectorOfTables[[2]] <- ConsensusAdjustedOnly
 names(vectorOfTables) <- c("ConsensusPvalue","ConsensusAdjustedOnly")
+print("finished")
 return(vectorOfTables)
 }
 
+# example
+vot <- dai(t1b, t2b, t3b, outputdir)
 # From there we could take the significant ASVs and plot the counts per sample vs Group
 both <- merge(asv2,groupings, by = "row.names")
 both <- column_to_rownames(both, var = "Row.names")

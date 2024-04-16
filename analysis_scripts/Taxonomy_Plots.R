@@ -14,16 +14,17 @@ value <- variable <- Samples <- NULL
 Taxonomy_Plots <- function(h){
 # read in tables
 pal = c('#91bfdb','#ffffbf','#fc8d59')
-meta <- brayWmeta
-KT <- read.table(file = "Kingdom_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
+meta <- outtab$newmap
+#KT <- read.table(file = "Kingdom_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
 PT <- read.table(file = "Phylum_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
 CT <- read.table(file = "Class_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
 OT <- read.table(file = "Order_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
 FT <- read.table(file = "Family_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
 GT <- read.table(file = "Genus_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
 ST <- read.table(file = "Species_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
-Group = meta %>% select(h)
+#Group = meta %>% select(h)
 Gname <- colnames(Group)
+
 # Here we are taking the taxonomy tables created above
 # taxa with less than a sum of 0.1 total proportion over all samples are merged
 # into a column of OTHER with the NA column if it is present.
@@ -84,12 +85,12 @@ melted$variable <- gsub("[a-z]__", "", melted$variable)
 melted$variable <- gsub("\\.", " ", melted$variable)
 filename <- paste0(name_label,"_taxonomy_",Gname,".png")
 filename2 <- paste0(name_label,"_taxonomy_table_",Gname,".txt")
-p <- ggplot2::ggplot(melted, ggplot2::aes(Samples, (value*100), fill = variable)) + ggplot2::geom_bar(stat='identity')+ ggplot2::ylab("Percent") + facet_grid(~Group, scales = "free") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::theme(axis.text.x=element_blank(),axis.ticks=element_blank()) + ggplot2::scale_fill_discrete(name = name_label)
+p <- ggplot2::ggplot(melted, ggplot2::aes(Samples, (value*100), fill = variable)) + ggplot2::geom_bar(stat='identity')+ ggplot2::ylab("Percent") + facet_grid(~Groups, scales = "free") + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::theme(axis.text.x=element_blank(),axis.ticks=element_blank()) + ggplot2::scale_fill_discrete(name = name_label)
 ggplot2::ggsave(p, file = filename, dpi  = 800, width = 14, height = 8, units = "in")
 write.table(both, file = filename2, sep = "\t", quote = FALSE)
 
 melted$variable = with(melted, reorder(variable,value,mean))
-p2 <- ggplot(melted, aes(Group,variable, fill=value)) + geom_tile(color="white", size=0.1) + facet_grid(~Group, scales = "free_y") + ylab(name_label) + theme(axis.text.y = element_text(size = 8),axis.text.x=element_blank(),axis.ticks=element_blank()) + scale_fill_gradientn(colours = pal,name = "Proportion")
+p2 <- ggplot(melted, aes(Samples,variable, fill=value)) + geom_tile(color="white", size=0.1) + facet_grid(~Groups, scales = "free") + ylab(name_label) + theme(axis.text.y = element_text(size = 8),axis.text.x=element_blank(),axis.ticks=element_blank()) + scale_fill_gradientn(colours = pal,name = "Proportion")
 filename3 <- paste0(name_label,"_taxonomy_heat.png")
 ggplot2::ggsave(p2, file = filename3, dpi  = 800, width = 6, height = 10, units = "in")
 }
@@ -101,7 +102,7 @@ Taxonomy_Plots_Top10 <- function(t,meta){
   # read in tables
   pal = c('#91bfdb','#ffffbf','#fc8d59')
   #meta <- read.table("Metadata_common.txt", sep = "\t", check.names = FALSE)
-  KT <- read.table(file = "Kingdom_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
+  #KT <- read.table(file = "Kingdom_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
   PT <- read.table(file = "Phylum_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
   CT <- read.table(file = "Class_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)
   OT <- read.table(file = "Order_taxonomy.txt", sep = "\t", check.names = FALSE, header = TRUE, row.names = 1)

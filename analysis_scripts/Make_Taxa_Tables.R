@@ -3,6 +3,7 @@
 #' table of metadata processed by Make_Tables.
 #'
 #' @importFrom plyr ddply
+#' @importFrom tibble rownames_to_column
 #' @importFrom stats setNames
 #' @importFrom utils read.table
 #' @importFrom utils write.table
@@ -48,13 +49,13 @@ ST = setNames(data.frame(t(ST[,-1])), ST[,1])
 #GT <- GT[,colSums(GT)>0]
 #ST <- ST[,colSums(ST)>0]
 # remove "Unknown NA" column
-#KT <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
-#PT <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
-#CT <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
-#OT <- OT[ , -which(names(OT) %in% c("Unknown NA"))]
-#FT <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
-#GT <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
-#ST <- ST[ , -which(names(ST) %in% c("Unknown NA"))]
+KT <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
+PT <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
+CT <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
+OT <- OT[ , -which(names(OT) %in% c("Unknown NA"))]
+FT <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
+GT <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
+ST <- ST[ , -which(names(ST) %in% c("Unknown NA"))]
 KT <- KT %>% rownames_to_column("SampleID")
 PT <- PT %>% rownames_to_column("SampleID")
 CT <- CT %>% rownames_to_column("SampleID")

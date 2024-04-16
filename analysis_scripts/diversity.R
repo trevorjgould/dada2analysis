@@ -12,8 +12,8 @@
 
 # metadata table
 diversity <- function(newmap,newtable){
-#newmap <- read.table("Metadata_common.txt")
-#newtable <- read.table("Sequence_table_common.rds")
+newmap <- read.table("Metadata_common.txt")
+newtable <- read.table("Sequence_table_common.rds")
 
 # get counts
 newmap$count <- rowSums(newtable)

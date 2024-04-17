@@ -11,6 +11,10 @@ library(metagenomeSeq)
 library(DESeq2)
 library(phyloseq)
 library(dplyr)
+library(tidyverse)
+library(purrr)
+library(superheat)
+library(UpSetR)
 # usage:
 # Rscript differential_abundance_intersect.R asvtable metadata taxonomy outputname
 # assumes ASVtable is samplesAsRows
@@ -22,7 +26,6 @@ dai <- function(ASV_table, groupings, taxa, outputname){
 #ASV_table = readRDS("seqtab_nochim.rds")
 # groupings <- read.delim("metadata_2column.txt", row.names = 1)
 #taxa <- readRDS("taxIDsilva.rds")
-# studyname <- "output_dir"
 #################
 # if standalone script
 #ASV_table <- read.table(args[1], sep="\t", header=T, row.names = 1, comment.char = "", quote="", check.names = F)
@@ -32,11 +35,11 @@ dai <- function(ASV_table, groupings, taxa, outputname){
 #taxatable = read.table(args[3], sep="\t", header=T, row.names = 1, comment.char = "", quote="", check.names = F)
 # output directory
 # if arg[4] exists: 
-# studyname = as.character(args[4])
-# else: studyname <- "output_directory"
+# outputname = as.character(args[4])
+# else: outputname <- "output_directory"
 
 # single column of grouping variable only
-groupings = groupings[,1]
+#groupings = groupings[,1]
 colnames(groupings) <- "group"
 
 # create input for x tool
@@ -54,7 +57,7 @@ print("running ALDEx2")
 ALDEx2_results <- aldex(reads=samplesAsColumns, conditions = groupings$group, mc.samples = 128, 
                         test="t", effect=TRUE, include.sample.summary = FALSE, 
                         verbose=T, denom="all")
-filename1 <- paste0(studyname,"_ALDEx2_result.txt")
+filename1 <- paste0(outputname,"_ALDEx2_result.txt")
 write.table(ALDEx2_results, file=filename1, quote=FALSE, sep='\t', col.names = NA)
 print("finished ALDEx2")
 # run ANCOMBC
@@ -64,7 +67,7 @@ print("finished ALDEx2")
 print("running ANCOMBC")
 ANCOMBC_results <- ancombc2(data = ancombcobject, struc_zero = "TRUE", group = colnames(groupings[1]), 
                             alpha=0.05, p_adj_method = "holm", fix_formula = colnames(groupings[1]))
-filename2 <- paste0(studyname,"_ANCOMBC_result.txt")
+filename2 <- paste0(outputname,"_ANCOMBC_result.txt")
 write.table(ANCOMBC_results$res, file=filename2, quote=FALSE, sep='\t', col.names = NA)
 print("finished ANCOMBC")
 # run Maaslin2
@@ -75,7 +78,7 @@ Maaslin2_results <- Maaslin2(samplesAsRows, groupings, outputname, transform = "
                              fixed_effects = c(colnames(groupings[1])), standardize = FALSE, 
                              plot_heatmap = F, plot_scatter = F)
 
-filename3 <- paste0(studyname,"_Maaslin2_result.txt")
+filename3 <- paste0(outputname,"_Maaslin2_result.txt")
 write.table(Maaslin2_results$results, file=filename3, quote=FALSE, sep='\t', col.names = NA)
 print("finished Maaslin2")
 # run corncob
@@ -102,7 +105,7 @@ print("running metagenomeSeq")
 p <- cumNormStatFast(metagenomeSeqObject)
 metagenomeSeqObject2 <- cumNorm(metagenomeSeqObject, p = p)
 pd <- pData(metagenomeSeqObject2)
-mod <- model.matrix( ~ 1 + colnames(groupings[1]), data = pd)
+mod <- model.matrix( ~ 1 + group, data = pd)
 regres <- fitFeatureModel(metagenomeSeqObject2, mod)
 metagenomeSeq_result <- MRfulltable(regres, number = nrow(featureData(metagenomeSeqObject)))
 filename5 <- paste0(outputname,"_metagenomeSeq_result.txt")
@@ -111,9 +114,8 @@ print("finished metagenomeSeq")
 # run DESeq2
 # columns: samples
 print("running deseq2")
-dds <- DESeq2::DESeqDataSetFromMatrix(countData = samplesAsColumns,
-                                      colData=groupings,
-                                      design = ~ colnames(groupings[1]))
+groupings <- groupings[order(row.names(groupings)), , drop = FALSE]
+dds <- DESeq2::DESeqDataSetFromMatrix(countData = samplesAsColumns, colData=groupings, design =~group)
 dds_res <- DESeq2::DESeq(dds, sfType = "poscounts")
 res <- results(dds_res, tidy=T, format="DataFrame")
 rownames(res) <- res$row
@@ -131,15 +133,18 @@ print("finished deseq2")
 print("combining methods")
 results_tables <- list.files(path = ".", pattern = "*_result.txt")
 if (length(results_tables)<6){
-  print0("Only found ",length(results_tables)," results tables. Something went wrong.")
-} else {print0("Found ",length(results_tables)," results tables. proceeding to merge.")}
+  message1 = paste0("Only found ",length(results_tables)," results tables. Some methods are missing results.")
+  print(message1)
+} else {
+  message1 = paste0("Found ",length(results_tables)," results tables. proceeding to merge.")
+  print(message1)}
 
 # for each table pull out pval and/or adjusted pval / effect. 
 # ALDEx2_result
 df1 <- as.data.frame(cbind(row.names(ALDEx2_results),ALDEx2_results$effect))# greater than 1 is recommended as reproducible significance cutoff
 colnames(df1) <- c("seqid","ALDEx2_adj")
 # ANCOMBC_result
-df2 <- as.data.frame(cbind(ANCOMBC_results$res$taxon,select(ANCOMBC_results$res, starts_with("p_"), -starts_with("p_(")),select(ANCOMBC_results$res, starts_with("q_"), -starts_with("q_("))))
+df2 <- as.data.frame(cbind(ANCOMBC_results$res$taxon,dplyr::select(ANCOMBC_results$res, starts_with("p_"), -starts_with("p_(")),dplyr::select(ANCOMBC_results$res, starts_with("q_"), -starts_with("q_("))))
 colnames(df2) <- c("seqid","ANCOMBC2_Pvalue","ANCOMBC2_adj")
 # Maaslin2_result
 df3 <- as.data.frame(cbind(Maaslin2_results$results$feature,Maaslin2_results$results$pval,Maaslin2_results$results$qval))
@@ -155,15 +160,15 @@ df6 <- as.data.frame(cbind(row.names(deseq2_result),deseq2_result$pval,deseq2_re
 colnames(df6) <- c("seqid","desq2_Pvalue","deseq2_adj")
 # Merge 6 tables together
 dflist <- list(df1, df2, df3, df4, df5, df6)
-dfall <- dflist %>% reduce(full_join, by='seqid')
-filename7 <- paste0(studyname,"_merged_all_result.txt")
+dfall <- dflist %>% purrr::reduce(full_join, by='seqid')
+filename7 <- paste0(outputname,"_merged_all_result.txt")
 write.table(dfall, file=filename7, quote=FALSE, sep='\t', col.names = NA)
 print("calculating results")
 # next we will take the combined result of that function "dfall" 
 # and present results 
 # split full table by Pvalue and adj Pvalue
-adjustedOnly <- select(dfall, ends_with("_adj"))
-PvalueOnly <- select(dfall, ends_with("_Pvalue"))
+adjustedOnly <- dplyr::select(dfall, ends_with("_adj"))
+PvalueOnly <- dplyr::select(dfall, ends_with("_Pvalue"))
 row.names(adjustedOnly) <- dfall$seqid
 row.names(PvalueOnly) <- dfall$seqid
 write.table(PvalueOnly, file = "PvalueOnly.txt", sep = "\t", quote = FALSE)
@@ -175,26 +180,26 @@ PvalueOnly <- read.table("PvalueOnly.txt", header = TRUE, row.names = 1)
 print("making heatmaps")
 p2 <- filter(PvalueOnly, rowSums(is.na(PvalueOnly))<=1)
 a2 <- filter(adjustedOnly, rowSums(is.na(adjustedOnly))<=1)
-superheat(p2, pretty.order.rows = TRUE, pretty.order.cols = TRUE, heat.pal = c("#2D5C4F","#829D7D","#5E8CF"),heat.pal.values = c(0,0.05,1))
-superheat(a2[,2:6], pretty.order.rows = TRUE, pretty.order.cols = TRUE, heat.pal = c("#2D5C4F","#829D7D","#E5E8CF"),heat.pal.values = c(0,0.05,1))
+superheat(p2, left.label = "none", pretty.order.rows = TRUE, pretty.order.cols = TRUE, heat.pal = c("#CC0000","#FFCC66","#336699"),heat.pal.values = c(0,0.05,1))
+superheat(a2[,2:6], left.label = "none", pretty.order.rows = TRUE, pretty.order.cols = TRUE, heat.pal = c("#CC0000","#FFCC66","#336699"),heat.pal.values = c(0,0.05,1))
 # just for any tool returning p<0.05
 p2 <- filter_all(PvalueOnly, any_vars(. < 0.05))
 a2 <- filter_all(adjustedOnly[,2:6], any_vars(. < 0.05))
 write.table(p2, file = "PvalueOnly_Any_tool_significant_only.txt", sep = "\t", quote = FALSE)
 write.table(a2, file = "adjustedOnly_Any_tool_significant_only.txt", sep = "\t", quote = FALSE)
 p2 <- filter_all(PvalueOnly, any_vars(. < 0.05))
-superheat(p2, pretty.order.rows = TRUE, pretty.order.cols = TRUE, heat.pal = c("#2D5C4F","#829D7D","#E5E8CF"),heat.pal.values = c(0,0.05,1))
-superheat(a2[,2:6], pretty.order.rows = TRUE, pretty.order.cols = TRUE, heat.pal = c("#2D5C4F","#829D7D","#E5E8CF"),heat.pal.values = c(0,0.05,1))
+superheat(p2, left.label = "none", pretty.order.rows = TRUE, pretty.order.cols = TRUE, heat.pal = c("#CC0000","#FFCC66","#336699"),heat.pal.values = c(0,0.05,1))
+superheat(a2, left.label = "none", pretty.order.rows = TRUE, pretty.order.cols = TRUE, heat.pal = c("#CC0000","#FFCC66","#336699"),heat.pal.values = c(0,0.05,1))
 
 # get only p value <= 0.05 more than 1 tool
 PvalueOnly$count <- rowSums(PvalueOnly <= 0.05)
 ConsensusPvalue <- subset(PvalueOnly, count > 1)
-ConsensusPvalue <- select(ConsensusPvalue, -ends_with("count"))
+ConsensusPvalue <- dplyr::select(ConsensusPvalue, -ends_with("count"))
 write.table(ConsensusPvalue, file = "ConsensusSigPvalueOnly.txt", sep = "\t", quote = FALSE)
 
 adjustedOnly$count <- rowSums(adjustedOnly <= 0.05)
 ConsensusAdjustedOnly <- subset(adjustedOnly, count > 1)
-ConsensusAdjustedOnly <- select(ConsensusAdjustedOnly, -ends_with("count"))
+ConsensusAdjustedOnly <- dplyr::select(ConsensusAdjustedOnly, -ends_with("count"))
 write.table(ConsensusAdjustedOnly, file = "ConsensusSigadjustedOnly.txt", sep = "\t", quote = FALSE)
 vectorOfTables <- vector(mode = "list", length = 2)
 vectorOfTables[[1]] <- ConsensusPvalue
@@ -242,15 +247,17 @@ getUpsetAdjust <- function(intab,cutoff,aldecut){
 # aldex2 is not a p-value. greater than 1 is likely to be reproducible effect
 # here we set make the cutoff flexible 
   good = intab2$ALDEx2_adj > aldecut
+  if(any(good == TRUE) > 0){
   good["TRUE"] = 1
   good["FALSE"] = 0
   intab2$ALDEx2_adj = good[1:6]
+  }
   pdf(file="Adjusted_upsetR_plot.pdf",onefile=FALSE) # or other device
-  plot2 <- upset(intab2, order.by = "freq", nsets = 6)
+  intab3 <- intab2[, which(colSums(intab2) != 0)]
+  plot2 <- upset(intab3, order.by = "freq", nsets = 6)
   print(plot2)
   dev.off()
   rownames(intab2)<- oldrn
   return(intab2)
 }
-
 gua <- getUpsetAdjust(vectorOfTables[[2]],0.05,1)

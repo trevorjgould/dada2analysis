@@ -114,6 +114,7 @@ write.table(brayWmeta, file="proportional_diversity_stats.txt", quote = FALSE)
 outlist <- list("brayWmeta"=brayWmeta,"PCOA" = PCOA)
 return(outlist)
 }
+
 ######################################################
 adonis_stats <- function(newmap,newtable,var1,var2){
   set.seed(12345)

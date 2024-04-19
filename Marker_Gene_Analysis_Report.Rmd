@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, results='hide', message=FALSE}
 suppressWarnings({
 # loading libraries
 library(plyr)
@@ -17,13 +17,10 @@ library(knitr)
 })
 ```
 
-Loading Functions:
+## Loading Functions:
 Create_Tables will take the inputtable and taxa tables from dada2 output in rds format
 it also requires a metadata table. This table has the format: 
 rows:[sample names] x columns:[variables to compare]
-
-There is an alternative create_table function for 18S because the taxonomic columns are different
-"Create_Tables_18S" that functions the same as [Create_Tables] otherwise.
 
 ```{r functions, echo=FALSE}
 # 16S and ITS table creation
@@ -84,6 +81,8 @@ return(list(newtable = newtable, newmap = newmap, combined_taxa = both))
 }
 
 # 18S table creation
+# There is an alternative create_table function for 18S because the taxonomic columns are different
+# "Create_Tables_18S" that functions the same as [Create_Tables] otherwise.
 Create_Tables_18S <- function(inputtable,metadata,taxa){
   #row.names(inputtable) <- gsub("-trimmed","", row.names(inputtable))
   #find common names
@@ -326,7 +325,7 @@ brayWmeta$simpson <- vegan::diversity(propdist, index = "simpson")
 # get counts
 # This assumes samples = ROWS
 min(rowSums(newtable))
-hist(rowSums(newtable))
+hist(rowSums(newtable), xlab = "Sequence Count of Sample", main = "Histogram Sequence Count")
 sampler = min(rowSums(newtable))
 scount <- as.data.frame(rowSums(newtable))
 print(paste("lowest sample size is: ", sampler))
@@ -337,7 +336,8 @@ if (sampler < 1000){
   newtable <- newtable[keepers,]
   sampler = 1000
   scount$col <- cut(scount$scount, breaks = c(-Inf,1000,Inf), labels = c("<1000",">1000"))
-  ggplot(scount, aes(x = scount)) + geom_dotplot(binwidth = 1000, aes(fill = col)) + geom_vline(xintercept = 1000, color = "red") + ylab("Samples") + xlab("Sequences") + scale_fill_manual(values = c("red","black"))
+  p1 <- ggplot(scount, aes(x = scount)) + geom_dotplot(binwidth = 1000, aes(fill = col)) + geom_vline(xintercept = 1000, color = "red") + ylab("Samples") + xlab("Sequences") + scale_fill_manual(values = c("red","black"))
+  print(p1)
 } else {
   print(paste("Setting rarefaction threshold to: ", sampler))
 }
@@ -562,6 +562,8 @@ write.table(both, file = filename2, sep = "\t", quote = FALSE)
 
 melted$variable = with(melted, reorder(variable,value,mean))
 p2 <- ggplot(melted, aes(Samples,variable, fill=value)) + geom_tile(color="white", linewidth=0.1) + facet_grid(~melted[,1], scales = "free") + ylab(name_label) + theme(axis.text.y = element_text(size = 8),axis.text.x=element_blank(),axis.ticks=element_blank()) + scale_fill_gradientn(colours = pal,name = "Proportion")
+print(p)
+print(p2)
 filename3 <- paste0(name_label,"_taxonomy_heat.png")
 ggplot2::ggsave(p2, file = filename3, dpi  = 800, width = 6, height = 10, units = "in")
 }
@@ -648,6 +650,7 @@ Group = meta %>% select(h)
     color4 = c("#BB3717","#54969A","#B47F6D","#0F5372")
     color3 = c("#A9502D","#678076","#C7723A")
 p <- ggplot2::ggplot(melted, ggplot2::aes(melted[,1], value, fill = melted[,1])) + ggplot2::geom_boxplot()+ ggplot2::ylab("Proportion") + ggplot2::scale_fill_manual(values = color4, name = t) + facet_grid(~reorder(variable, -value, mean), scales = "free", switch="both")+ theme_bw()+theme(strip.text.y.left = element_text(angle = 0),axis.text.x=element_blank(),axis.ticks=element_blank(),strip.text=element_text(margin=margin()),panel.spacing=unit(0, "lines"),legend.position="bottom") + ggtitle(titlename) + xlab(name_label)
+print(p)
     ggplot2::ggsave(p, file = filename, dpi  = 800, width = 14, height = 8, units = "in")
     write.table(both, file = filename2, sep = "\t", quote = FALSE)
        }
@@ -662,7 +665,7 @@ Here we assume this script is being run in the directory that contains the files
 [taxa.rds]
 [metadata.txt]
 
-Do These files look correct:
+**Do These files look correct?**
 ```{r}
 # load files from dada2 output
 inputtable <- readRDS("seqtab_nochim.rds")
@@ -670,15 +673,14 @@ taxa <- readRDS("taxa.rds")
 metadata <- read.delim("metadata.txt", row.names=1, header=TRUE)
 ```
 
-Next we create the tables used for all analysis:
-
+## Create the tables used for all analysis
 ```{r}
 outtab <- Create_Tables(inputtable,metadata,taxa)
 combined_taxa = outtab$combined_taxa
 outtax <- Make_Taxa_Tables(combined_taxa)
 ```
 
-Running initial statistical diversity analysis
+## Running initial statistical diversity analysis
 ```{r}
 
 newmap = outtab$newmap
@@ -691,21 +693,21 @@ Histogram of sequence count of samples.
 The downside of rarefaction is you have to downsample to the sample with the least sequences. 
 This is signified by the rarefaction threshold. 
 
+## Plots {.tabset}
 
-Creating taxonomy plots
+
+### Taxonomy Plots
 ```{r}
 comp <- colnames(newmap)
-lapply(comp,Taxonomy_Plots)
-lapply(comp,Taxonomy_Plots_Top10)
+tout1 <- lapply(comp,Taxonomy_Plots)
+tout2 <- lapply(comp,Taxonomy_Plots_Top10)
 ```
 
-
-
-Creating diversity plots
+### Diversity Plots
 ```{r}
-# need to cycle through a column variable here
+
 comp <- colnames(newmap)
-lapply(comp, Diversity_Plots)
+lout <- lapply(comp, Diversity_Plots)
 ```
 
-Report Provided my MSI - Research Informatics
+**Report Provided my MSI - Research Informatics**

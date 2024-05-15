@@ -15,12 +15,8 @@ names(filtRs) <- sample.names
 
 # 16s
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,200), maxN=0, maxEE=c(2,4), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
-out
-#f2 <- list.files("filtered/")
-#filtFs <- f2[grepl("_F_", f2) == TRUE]
-#filtRs <- f2[grepl("_R_", f2) == TRUE]
+head(out)
 
-#setwd("filtered/")
 #dereplicate reads
 derep_forward <- derepFastq(filtFs, verbose=TRUE)
 names(derep_forward) <- sample.names # the sample names in these objects are initially the file names of the samples, this sets them to the sample names for the rest of the workflow
@@ -57,9 +53,14 @@ seqtab.nochim <- readRDS("seqtab_nochim.rds")
 
 #TAXONOMY
 taxasilva <- assignTaxonomy(seqtab.nochim, "/home/umii/public/dada2_taxonomy_references/silva_nr99_v138.1_train_set.fa", multithread=TRUE, outputBootstraps = TRUE)
-taxasilva$tax <- addSpecies(taxasilva$tax, "/home/umii/public/dada2_taxonomy_references/silva_species_assignment_v138.1.fa")
-saveRDS(taxasilva$tax, file = "taxIDsilva.rds")
-saveRDS(taxasilva$boot, file = "taxIDsilva_bootstrap.rds")
+taxout <- taxasilva$tax
+bootout <- taxasilva$boot
+saveRDS(taxout, file = "taxIDsilva.rds")
+saveRDS(bootout, file = "taxIDsilva_bootstrap.rds")
+
+#saveRDS(taxasilva$tax, file = "taxIDsilva.rds")
+#saveRDS(taxasilva$boot, file = "taxIDsilva_bootstrap.rds")
+
 both1 <- cbind(t(seqtab.nochim),taxasilva$tax, taxasilva$boot)
 both2 <- cbind(t(seqtab.nochim),taxasilva$tax)
 write.table(both1, file = "16S_combined_sequences_taxa_silva_boot.txt", sep = "\t", quote = FALSE, col.names=NA)

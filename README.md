@@ -20,7 +20,12 @@
        
        recommend using references with outgroups ie ("All eukaryotes") when possible. 
 
-
+  3) **blastPlus taxonomy addition**
+  		edit slurm script [blastplus_dada2.sh] and run blastplus_dada2.sh
+  		
+  		- This requires access to blastplus module and nt database
+  		
+  		then run blast_out_merge_dada2.R
 
 **R - Analysis of dada2 output**
 

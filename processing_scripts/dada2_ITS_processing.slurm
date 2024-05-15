@@ -1,12 +1,15 @@
 #!/bin/bash -l
 #SBATCH --time=12:00:00
-#SBATCH --ntasks=8
-#SBATCH --mem=60
+#SBATCH --ntasks=64
+#SBATCH --mem=60gb
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=goul0109@umn.edu
 
 cd /location/of/fastq.gz/files/
-module load R/4.1.0
-/location/of/scripts/trim_ITS.sh
+module load compatibility/mesabi-centos7
+compat-exec ./trim_ITS.sh
 cd 02_filtered/
-Rscript /location/of/scripts/run_ITS_dada2.R
+
+module load R/4.3.0-openblas-rocky8
+Rscript ../run_ITS_dada2.R
+

@@ -23,7 +23,7 @@ df$Index <- seq(nrow(df))
 p1 <- ggplot(data=df, aes(x=Index, y=LibrarySize, color=ContaminateCheck)) + geom_point()
 sample_data(ps)$is.neg <- sample_data(ps)$ContaminateCheck == "Blank"
 contamdf.prev <- isContaminant(ps, method="prevalence", neg="is.neg")
-ggsave(p1, file = "library_size.png", dpi = 800, height = 6, width = 7, units = "in")
+ggsave(p1, file = "library_size_1.png", dpi = 800, height = 6, width = 7, units = "in")
 table(contamdf.prev$contaminant)
 
 # DECONTAM removed 6 ASV sequences present in blank samples > real samples
@@ -40,7 +40,7 @@ df.pa <- data.frame(pa.pos=taxa_sums(ps.pa.pos), pa.neg=taxa_sums(ps.pa.neg),
                     contaminant=contamdf.prev$contaminant)
 p2<- ggplot(data=df.pa, aes(x=pa.neg, y=pa.pos, color=contaminant)) + geom_point() +
   xlab("Prevalence (Negative Controls)") + ylab("Prevalence (True Samples)")
-ggsave(p2, file = "library_size.png", dpi = 800, height = 6, width = 7, units = "in")
+ggsave(p2, file = "library_size_2.png", dpi = 800, height = 6, width = 7, units = "in")
 
 ps.noncontam <- prune_taxa(!contamdf.prev$contaminant, ps)
 #ps.noncontam

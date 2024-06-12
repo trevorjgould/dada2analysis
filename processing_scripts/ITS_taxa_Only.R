@@ -2,8 +2,8 @@ library(dada2)
 seqtab.nochim <- readRDS("seqtab_nochim.rds")
 
 #TAXONOMY
-ref <- "/home/umii/public/dada2_taxonomy_references/sh_general_release_dynamic_s_all_25.07.2023_dev.fasta"
-taxa <- assignTaxonomy(seqtab.nochim, ref, multithread = TRUE, outputBootstraps = TRUE)
+ref <- "/home/umii/public/dada2_taxonomy_references/sh_general_release_dynamic_all_04.04.2024.fasta"
+taxa <- assignTaxonomy(seqtab.nochim, ref, multithread = 128, outputBootstraps = TRUE)
 
 taxout <- taxa$tax
 bootout <- taxa$boot

@@ -16,7 +16,7 @@ grep "passing" 01_logs/* > summary_adapter_trimming.txt
 # remove primers
 mkdir ../02_filtered  
 #V4
-for i in *_R1_001.fastq.gz; do echo "cutadapt --cores 8 --pair-filter=any --minimum-length 100 --discard-untrimmed -g GTGCCAGCMGCCGCGGTAA -G SGACTACHVGGGTWTCTAAT -o ../02_filtered/${i//_R1_001.fastq.gz/_R1_001.fastq.gz} -p ../02_filtered/${i//_R1_001.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+for i in *_R1_001.fastq.gz; do echo "cutadapt --cores 8 --pair-filter=any --minimum-length 100 --discard-untrimmed -g GTGCCAGCMGCCGCGGTAA -G GGACTACHVGGGTWTCTAAT -o ../02_filtered/${i//_R1_001.fastq.gz/_R1_001.fastq.gz} -p ../02_filtered/${i//_R1_001.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
 #V3V4
 #for i in *_R1_001.fastq.gz; do echo "cutadapt --cores 8 --pair-filter=any --minimum-length 100 --discard-untrimmed -g CCTACGGGNGGCWGCAG -G NGACTACHVGGGTWTCTAAT -o ../02_filtered/${i} -p ../02_filtered/${i//_R1_001.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
 #V1V3

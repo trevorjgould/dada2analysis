@@ -1,11 +1,13 @@
-Package: dada2_pipeline
+Package: MarkerGeneAnalysis
 Type: Package
-Title: dada2 processing and analysis
-Version: 1.0.0
-Author: Trevor Gould
-Maintainer: Trevor Gould <TrevorJGould@gmail.com>
-Description: processes 16s/ITS/18S sequence data through dada2 and analysis
-License: MIT
+Title: 16S Dada2 ASV Marker Gene Analysis
+Version: 0.1.0
+Authors@R: person("Gould", "Trevor", email = "goul0109@umn.edu",
+  role = c("aut", "cre"))
+Description: 16S Dada2 ASV Marker Gene Analysis takes dada2 output and metadata
+	combines together into tables and creates plots for summary, taxonomy, and stats.
+	Also runs stats for alpha and beta diversity.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 

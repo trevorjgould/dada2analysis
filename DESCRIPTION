@@ -1,0 +1,36 @@
+Package: dada2_pipeline
+Type: Package
+Title: dada2 processing and analysis
+Version: 1.0.0
+Author: Trevor Gould
+Maintainer: Trevor Gould <TrevorJGould@gmail.com>
+Description: processes 16s/ITS/18S sequence data through dada2 and analysis
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports: 
+	dada2, 
+	grid.arrange, 
+	plyr, 
+	ggplot2, 
+	tibble,
+	decontam,
+	phyloseq,
+	factoextra,
+	reshape2
+	dplyr,
+	DECIPHER,
+	Biostrings,
+	ALDEx2,
+	ANCOMBC,
+	Maaslin2,
+	corncob,
+	metagenomeSeq,
+	DESeq2,
+	phyloseq,
+	tidyverse,
+	superheat,
+	UpSetR,
+	prcomp,
+	vegan,
+	phangorn

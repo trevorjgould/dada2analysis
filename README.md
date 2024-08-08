@@ -1,4 +1,4 @@
-![logo](/images/Picture1.png)
+![logo](/inst/logos/Picture1.png)
 
 **Processing of raw sequence data**
 

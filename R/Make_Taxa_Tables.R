@@ -2,6 +2,7 @@
 #' This function creates taxa tables from dada2 output
 #' table of metadata processed by Make_Tables.
 #'
+#' @param combined_taxa combined table of seqtab and taxa
 #' @importFrom plyr ddply
 #' @importFrom tibble rownames_to_column
 #' @importFrom stats setNames
@@ -9,12 +10,10 @@
 #' @importFrom utils write.table
 #' @export
 
-# avoiding no visible binding for global variable
-domain <- phylum <- family <- genus <- species <- NULL
-
 # reads in table from Make_Tables.R
-#Make_Taxa_Tables <- function(x){
-combined_taxa <- read.table("combined_sequences_taxa.txt", sep = "\t", check.names = FALSE)
+Make_Taxa_Tables <- function(combined_taxa){
+Kingdom <- Phylum <- Class <- Order <- Family <- Genus <- Species <- NULL
+#combined_taxa <- read.table("combined_sequences_taxa.txt", sep = "\t", check.names = FALSE)
 #make split taxa tables
 levels <- c("Kingdom","Phylum","Class","Order","Family","Genus","Species")
 n <- (ncol(combined_taxa) - 7)
@@ -63,12 +62,12 @@ OT <- OT %>% rownames_to_column("SampleID")
 FT <- FT %>% rownames_to_column("SampleID")
 GT <- GT %>% rownames_to_column("SampleID")
 ST <- ST %>% rownames_to_column("SampleID")
-write_tsv(KT, file = "Kingdom_taxonomy.txt")
-write_tsv(PT, file = "Phylum_taxonomy.txt")
-write_tsv(CT, file = "Class_taxonomy.txt")
-write_tsv(OT, file = "Order_taxonomy.txt")
-write_tsv(FT, file = "Family_taxonomy.txt")
-write_tsv(GT, file = "Genus_taxonomy.txt")
-write_tsv(ST, file = "Species_taxonomy.txt")
+readr::write_tsv(KT, file = "Kingdom_taxonomy.txt")
+readr::write_tsv(PT, file = "Phylum_taxonomy.txt")
+readr::write_tsv(CT, file = "Class_taxonomy.txt")
+readr::write_tsv(OT, file = "Order_taxonomy.txt")
+readr::write_tsv(FT, file = "Family_taxonomy.txt")
+readr::write_tsv(GT, file = "Genus_taxonomy.txt")
+readr::write_tsv(ST, file = "Species_taxonomy.txt")
 return(list(PT=PT,CT=CT,OT=OT,FT=FT,GT=GT,ST=ST))
 }

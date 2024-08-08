@@ -1,7 +1,7 @@
-Package: MarkerGeneAnalysis
+Package: dada2analysis
 Type: Package
-Title: 16S Dada2 ASV Marker Gene Analysis
-Version: 0.1.0
+Title: Dada2 ASV Marker Gene Analysis
+Version: 0.3.0
 Authors@R: person("Gould", "Trevor", email = "goul0109@umn.edu",
   role = c("aut", "cre"))
 Description: 16S Dada2 ASV Marker Gene Analysis takes dada2 output and metadata
@@ -11,28 +11,22 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
-	dada2, 
-	grid.arrange, 
-	plyr, 
 	ggplot2, 
 	tibble,
-	decontam,
-	phyloseq,
-	factoextra,
-	reshape2
+	tidyr,
+	plyr,
 	dplyr,
-	DECIPHER,
-	Biostrings,
-	ALDEx2,
-	ANCOMBC,
-	Maaslin2,
-	corncob,
-	metagenomeSeq,
-	DESeq2,
-	phyloseq,
-	tidyverse,
-	superheat,
-	UpSetR,
-	prcomp,
+	stats,
 	vegan,
-	phangorn
+	patchwork,
+	ggpubr,
+	ggthemes,
+	OTUtable,
+	purrr,
+	magrittr,
+	readr,
+	reshape2
+Suggests:
+    Biostrings
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3

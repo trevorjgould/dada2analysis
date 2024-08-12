@@ -9,7 +9,6 @@
 
 # read in files
 Diversity_Plots <- function(brayWmeta,newmap){
-  outtab <- NULL
   # brayWmeta <- read.table('proportional_diversity_stats.txt')
   # newmap <- read.table("Metadata_common.txt")
   var_explained = (brayWmeta$EV/sum(brayWmeta$EV))*100
@@ -24,10 +23,10 @@ Diversity_Plots <- function(brayWmeta,newmap){
     SimD <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), simpson, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
     SimI <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), chao1, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) + ggpubr::stat_compare_means()
     combinded_plot <- patchwork::wrap_plots(ShanD, SimD, SimI, ncol=1)
-    plottitle <- paste0("AlphaDiversity_",.column,",plots.png")
+    plottitle <- paste0("AlphaDiversity_",.column,".png")
     ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
   }
-  Adivplots <- names(brayWmeta)[1:2] %>% purrr::map(~Adiv(.data = brayWmeta, .column = .x))
+  Adivplots <- names(newmap) %>% purrr::map(~Adiv(.data = brayWmeta, .column = .x))
 
   # ggplot functions for PCAs
   bdiv <- function(.data, .column) {
@@ -38,7 +37,7 @@ Diversity_Plots <- function(brayWmeta,newmap){
     plottitle <- paste0("PCA_PC12_PC13_continuous",.column,".png")
     ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
   }
-  bdivplots <- names(brayWmeta)[1:ncol(outtab$newmap)] %>% purrr::map(~bdiv(.data = brayWmeta, .column = .x))
+  bdivplots <- names(newmap) %>% purrr::map(~bdiv(.data = brayWmeta, .column = .x))
 
   # ggplot functions for PCoAs
   bdivrare <- function(.data, .column) {
@@ -49,7 +48,7 @@ Diversity_Plots <- function(brayWmeta,newmap){
     plottitle <- paste0("Rareified_PCoA_PC12_PC13_continuous",.column,".png")
     ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
   }
-  bdivrareplots <- names(brayWmeta)[1:ncol(outtab$newmap)] %>% purrr::map(~bdivrare(.data = brayWmeta, .column = .x))
+  bdivrareplots <- names(newmap) %>% purrr::map(~bdivrare(.data = brayWmeta, .column = .x))
 
   Adiv2 <- function(x) {
     subbed <- brayWmeta[!brayWmeta[,x] == "",]
@@ -67,11 +66,9 @@ Diversity_Plots <- function(brayWmeta,newmap){
     ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
   }
 
-
-
 # make plots
-lapply(colnames(newmap), Adiv)
+#lapply(colnames(newmap), Adiv)
 #bdiv("Eligibility_group")
 #bdiv("V1_ACV2SPIKE_Result")
-lapply(colnames(newmap), bdiv)
+#lapply(colnames(newmap), bdiv)
 }

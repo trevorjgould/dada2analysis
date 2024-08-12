@@ -61,7 +61,7 @@ Create_Taxonomy_Plot <- function(taxtable,t,metadata){
 
     both <- cbind(XT_other,metadata)
     both$Samples <- row.names(metadata)
-    melted <- reshape2::melt(both, id.vars = c(colnames(meta),"Samples"))
+    melted <- reshape2::melt(both, id.vars = c(colnames(metadata),"Samples"))
     melted$variable <- gsub("[a-z]__", "", melted$variable)
     melted$variable <- gsub("\\.", " ", melted$variable)
 
@@ -76,9 +76,10 @@ Create_Taxonomy_Plot <- function(taxtable,t,metadata){
     filename2 <- paste0(name_label,"_taxonomy_top",t,".txt")
     titlename <- paste0("Top_",t,"_",name_label)
     # colors
+    AsteroidCityall = c("#0A9F9D", "#CEB175", "#E54E21", "#6C8645", "#C18748","#C52E19", "#AC9765", "#54D8B1", "#b67c3b", "#175149", "#AF4E24", "#FBA72A", "#D3D4D8", "#CB7A5C", "#5785C1")
 	GrandBudapest1 = c("#E6A0C4", "#C6CDF7", "#D8A499", "#7294D4","#F1BB7B", "#FD6467", "#5B1A18", "#D67236")
 	#getPalette = RColorBrewer::colorRampPalette(brewer.pal(t, "Set1"))
-	p <- ggplot2::ggplot(data = melted[!is.na(melted$SampleID),], ggplot2::aes(Samples, (value*100), fill = variable)) + ggplot2::geom_bar(stat='identity')+ ggplot2::ylab("Percent") + ggplot2::scale_x_discrete(expand = c(0, 0.5)) + ggplot2::xlab(name_label) + theme_Publication() + ggplot2::scale_fill_manual(values = GrandBudapest1) + ggplot2::guides(fill = ggplot2::guide_legend(ncol = 2))
+	p <- ggplot2::ggplot(data = melted[!is.na(melted$SampleID),], ggplot2::aes(Samples, (value*100), fill = variable)) + ggplot2::geom_bar(stat='identity')+ ggplot2::ylab("Percent") + ggplot2::scale_x_discrete(expand = c(0, 0.5)) + ggplot2::xlab(name_label) + theme_Publication() + ggplot2::scale_fill_manual(values = AsteroidCityall) + ggplot2::guides(fill = ggplot2::guide_legend(ncol = 2))
     ggplot2::ggsave(p, file = filename, dpi  = 800, width = 14, height = 8, units = "in")
     utils::write.table(both, file = filename2, sep = "\t", quote = FALSE)
     return(p)

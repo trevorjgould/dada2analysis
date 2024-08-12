@@ -48,6 +48,6 @@ brayWmeta$PC1pcoa <- PCOA$points[,1]
 ###################
 round(PCOA$eig*100/sum(PCOA$eig),2)
 utils::write.table(brayWmeta, file="proportional_diversity_stats.txt", quote = FALSE)
-outlist <- list("brayWmeta"=brayWmeta,"PCOA" = PCOA)
+outlist <- list("brayWmeta"=brayWmeta,"PCOA" = PCOA, "d2.mes" = d2.mes)
 return(outlist)
 }

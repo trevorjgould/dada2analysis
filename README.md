@@ -34,22 +34,29 @@
 2) metadata with sample names matching seqtab output **PROVIDED BY USER**
 3) taxonomy file with sequences matching seqtab output and taxa output from IDtaxa in R
 ```
-# input dada2 sequence table
-t1 <- readRDS('seqtab_nochim.rds')
-# input metadata
-t2 <- read.table('metadata.txt', sep = '\t', comment='', head=TRUE, row.names=1, check.names = FALSE)
-# input taxonomy
-t3 <- readRDS("taxID.rds")
+library(dada2analysis)
+# load tables
+inputtable <- readRDS("seqtab_nochim.rds")
+taxa <- readRDS("taxa.rds")
+metadata <- read.table("metadata.txt", header= TRUE, row.names = 1)
 
-outtab <- Create_Tables(t1,t2,t3)
-combined_taxa <- read.table(file = "combined_sequences_taxa.txt", sep = "\t")
+outtab <- Create_Tables(inputtable,metadata,taxa)
+brayWmeta <- dada2analysis::diversity(outtab$newmap,outtab$newtable)
+outlist <- rarefyTable(outtab$newtable)
 
-taxa_out <- Make_Taxa_Tables("combined_sequences_taxa.txt")
-Taxonomy_Plots(outtab$newmap)
-sequence_count_table <- read.delim("sequence_process_summary.txt", row.names=1)
-sequence_count_plot(sequence_count_table)
-brayWmeta <- diversity(outtab$newmap,outtab$newtable)
+# list to single objects
+PCOA <- outlist$PCOA
+brayWmeta <- outlist$brayWmeta
+ds.mes <- outlist$ds.mes
+
 Diversity_Plots(brayWmeta, outtab$newmap)
+taxaout <- dada2analysis::Make_Taxa_Tables(outtab$combined_taxa)
+Create_Taxonomy_Plot(taxout$PT,10,outtab$newmap)
+Create_Taxonomy_Plot(taxout$CT,10,outtab$newmap)
+Create_Taxonomy_Plot(taxout$OT,10,outtab$newmap)
+Create_Taxonomy_Plot(taxout$FT,10,outtab$newmap)
+Create_Taxonomy_Plot(taxout$GT,10,outtab$newmap)
+Create_Taxonomy_Plot(taxout$ST,10,outtab$newmap)
 ```
 **The output from this pipeline is:**
 1) combined tables for use in analysis

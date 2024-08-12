@@ -50,7 +50,7 @@ brayWmeta <- outlist$brayWmeta
 ds.mes <- outlist$ds.mes
 
 Diversity_Plots(brayWmeta, outtab$newmap)
-taxaout <- dada2analysis::Make_Taxa_Tables(outtab$combined_taxa)
+taxaout <- Make_Taxa_Tables(outtab$combined_taxa)
 Create_Taxonomy_Plot(taxout$PT,10,outtab$newmap)
 Create_Taxonomy_Plot(taxout$CT,10,outtab$newmap)
 Create_Taxonomy_Plot(taxout$OT,10,outtab$newmap)

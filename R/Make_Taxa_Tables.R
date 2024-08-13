@@ -49,13 +49,13 @@ ST = setNames(data.frame(t(ST[,-1])), ST[,1])
 #GT <- GT[,colSums(GT)>0]
 #ST <- ST[,colSums(ST)>0]
 # remove "Unknown NA" column
-KT <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
-PT <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
-CT <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
-OT <- OT[ , -which(names(OT) %in% c("Unknown NA"))]
-FT <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
-GT <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
-ST <- ST[ , -which(names(ST) %in% c("Unknown NA"))]
+Domain <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
+Phylum <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
+Class <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
+Order <- OT[ , -which(names(OT) %in% c("Unknown NA"))]
+Family <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
+Genus <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
+Species <- ST[ , -which(names(ST) %in% c("Unknown NA"))]
 KT2 <- KT %>% tibble::rownames_to_column("SampleID")
 PT2 <- PT %>% tibble::rownames_to_column("SampleID")
 CT2 <- CT %>% tibble::rownames_to_column("SampleID")
@@ -108,12 +108,12 @@ GT = setNames(data.frame(t(GT[,-1])), GT[,1])
 #FT <- FT[,colSums(FT)>0]
 #GT <- GT[,colSums(GT)>0]
 # remove "Unknown NA" column
-KT <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
-PT <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
-CT <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
-OT <- OT[ , -which(names(OT) %in% c("Unknown NA"))]
-FT <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
-GT <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
+Domain <- KT[ , -which(names(KT) %in% c("Unknown NA"))]
+Phylum <- PT[ , -which(names(PT) %in% c("Unknown NA"))]
+Class <- CT[ , -which(names(CT) %in% c("Unknown NA"))]
+Order <- OT[ , -which(names(OT) %in% c("Unknown NA"))]
+Family <- FT[ , -which(names(FT) %in% c("Unknown NA"))]
+Genus <- GT[ , -which(names(GT) %in% c("Unknown NA"))]
 KT2 <- KT %>% tibble::rownames_to_column("SampleID")
 PT2 <- PT %>% tibble::rownames_to_column("SampleID")
 CT2 <- CT %>% tibble::rownames_to_column("SampleID")

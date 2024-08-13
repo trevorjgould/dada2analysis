@@ -16,6 +16,7 @@ Create_Taxonomy_Plot <- function(taxtable,t,metadata){
 	# get taxa output name
     name_label <- deparse1(substitute(taxtable))
     name_label <- gsub(".txt","",name_label)
+    name_label <- gsub(".*\\$", "", name_label)
     # get taxa table
     xt=as.data.frame(taxtable)
     xt=xt[(rowSums(xt)>0),]
@@ -73,13 +74,14 @@ Create_Taxonomy_Plot <- function(taxtable,t,metadata){
     melted$taxonomy <- factor(melted$variable, levels = c("other",paste0(alltaxa2)))
     # filenames
     filename <- paste0(name_label,"_taxonomy_top",t,"_Type_boxplot.png")
-    filename2 <- paste0(name_label,"_taxonomy_top",t,".txt")
+    filename2 <- paste0(name_label,"_taxonomy_top_",t,".txt")
     titlename <- paste0("Top_",t,"_",name_label)
     # colors
     AsteroidCityall = c("#0A9F9D", "#CEB175", "#E54E21", "#6C8645", "#C18748","#C52E19", "#AC9765", "#54D8B1", "#b67c3b", "#175149", "#AF4E24", "#FBA72A", "#D3D4D8", "#CB7A5C", "#5785C1")
 	GrandBudapest1 = c("#E6A0C4", "#C6CDF7", "#D8A499", "#7294D4","#F1BB7B", "#FD6467", "#5B1A18", "#D67236")
 	#getPalette = RColorBrewer::colorRampPalette(brewer.pal(t, "Set1"))
-	p <- ggplot2::ggplot(data = melted[!is.na(melted$SampleID),], ggplot2::aes(Samples, (value*100), fill = variable)) + ggplot2::geom_bar(stat='identity')+ ggplot2::ylab("Percent") + ggplot2::scale_x_discrete(expand = c(0, 0.5)) + ggplot2::xlab(name_label) + theme_Publication() + ggplot2::scale_fill_manual(values = AsteroidCityall) + ggplot2::guides(fill = ggplot2::guide_legend(ncol = 2))
+
+	p <- ggplot2::ggplot(data = melted[!is.na(melted$SampleID),], ggplot2::aes(Samples, (value*100), fill = taxonomy)) + ggplot2::geom_bar(stat='identity')+ ggplot2::ylab("Percent") + ggplot2::scale_x_discrete(expand = c(0, 0.5)) + ggplot2::xlab("Samples") + theme_Publication() + ggplot2::scale_fill_manual(values = AsteroidCityall) + ggplot2::guides(fill = ggplot2::guide_legend(ncol = 2,title=name_label))
     ggplot2::ggsave(p, file = filename, dpi  = 800, width = 14, height = 8, units = "in")
     utils::write.table(both, file = filename2, sep = "\t", quote = FALSE)
     return(p)

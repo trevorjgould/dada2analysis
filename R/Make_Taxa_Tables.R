@@ -51,7 +51,7 @@ if("Unknown NA" %in% colnames(Class)){Class <- Class[ , -which(names(Class) %in%
 if("Unknown NA" %in% colnames(Order)){Order <- Order[ , -which(names(Order) %in% c("Unknown NA"))]}
 if("Unknown NA" %in% colnames(Family)){Family <- Family[ , -which(names(Family) %in% c("Unknown NA"))]}
 if("Unknown NA" %in% colnames(Genus)){Genus <- Genus[ , -which(names(Genus) %in% c("Unknown NA"))]}
-if(NA %in% colnames(Domain)){Domain <- Domain[!is.na(names(Domain))]]}
+if(NA %in% colnames(Domain)){Domain <- Domain[!is.na(names(Domain))]}
 Domain2 <- Domain %>% tibble::rownames_to_column("SampleID")
 Phylum2 <- Phylum %>% tibble::rownames_to_column("SampleID")
 Class2 <- Class %>% tibble::rownames_to_column("SampleID")

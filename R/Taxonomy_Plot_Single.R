@@ -12,7 +12,7 @@
 # here we are looking to create a function that runs a single level table instead of reading in each table that was created
 
 Create_Taxonomy_Plot <- function(taxtable,t,metadata){
-	value <- variable <- Samples <- meta <- NULL
+	value <- variable <- Samples <- meta <- taxonomy <- NULL
 	# get taxa output name
     name_label <- deparse1(substitute(taxtable))
     name_label <- gsub(".txt","",name_label)

@@ -28,6 +28,18 @@ Diversity_Plots <- function(brayWmeta,newmap){
   }
   Adivplots <- names(newmap) %>% purrr::map(~Adiv(.data = brayWmeta, .column = .x))
 
+  Adivnolegend <- function(.data, .column) {
+    shannon <- simpson <- chao1 <- NULL
+    ShanD <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), shannon, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
+    SimD <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), simpson, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
+    SimI <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), chao1, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
+    combinded_plot <- patchwork::wrap_plots(ShanD, SimD, SimI, ncol=1)
+    plottitle <- paste0("AlphaDiversity_",.column,"nolegend.png")
+    ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
+  }
+  Adivplots <- names(newmap) %>% purrr::map(~Adivnolegend(.data = brayWmeta, .column = .x))
+
+
   # ggplot functions for PCAs
   bdiv <- function(.data, .column) {
     PC1 <- PC2 <- PC3 <- outtab <- NULL
@@ -38,7 +50,7 @@ Diversity_Plots <- function(brayWmeta,newmap){
     ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
   }
   bdivplots <- names(newmap) %>% purrr::map(~bdiv(.data = brayWmeta, .column = .x))
-
+if("PC1pcoa" %in% colnames(brayWmeta)){
   # ggplot functions for PCoAs
   bdivrare <- function(.data, .column) {
     PC1pcoa <- PC2pcoa <- PC3pcoa <- outtab <- NULL
@@ -49,7 +61,7 @@ Diversity_Plots <- function(brayWmeta,newmap){
     ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
   }
   bdivrareplots <- names(newmap) %>% purrr::map(~bdivrare(.data = brayWmeta, .column = .x))
-
+}
   Adiv2 <- function(x) {
     subbed <- brayWmeta[!brayWmeta[,x] == "",]
     brayWmeta <- subbed %>% tidyr::drop_na(x)
@@ -65,6 +77,16 @@ Diversity_Plots <- function(brayWmeta,newmap){
     plottitle <- paste0("AlphaDiversity_plots_",x,"_significance.png")
     ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
   }
+
+  bdivnolegend <- function(.data, .column) {
+    PC1 <- PC2 <- PC3 <- outtab <- NULL
+    PC1PC2 <- ggplot2::ggplot(.data, ggplot2::aes(PC1,PC2, colour = !!dplyr::sym(.column))) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC2: ",(var_explained[2]), "% variance"))
+    PC1PC3 <- ggplot2::ggplot(.data, ggplot2::aes(PC1,PC3, colour = !!dplyr::sym(.column))) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC3: ",(var_explained[3]), "% variance"))
+    combinded_plot2 <- patchwork::wrap_plots(PC1PC2, PC1PC3, ncol=1)
+    plottitle <- paste0("PCA_PC12_PC13_nolegend",.column,".png")
+    ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
+  }
+  bdivplots <- names(newmap) %>% purrr::map(~bdivnolegend(.data = brayWmeta, .column = .x))
 
 # make plots
 #lapply(colnames(newmap), Adiv)

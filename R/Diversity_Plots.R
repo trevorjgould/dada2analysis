@@ -13,9 +13,6 @@ Diversity_Plots <- function(brayWmeta,newmap){
   # newmap <- read.table("Metadata_common.txt")
   var_explained = (brayWmeta$EV/sum(brayWmeta$EV))*100
   var_explained = format(round(var_explained, 2), nsmall = 2)
-  #PCOA <- cmdscale(d2.mes, k = 3, eig = TRUE)
-  PCOA$eig <- PCOA$eig
-  PCOA$eig <- format(round(PCOA$eig, 2), nsmall = 2)
 
   Adiv <- function(.data, .column) {
     shannon <- simpson <- chao1 <- NULL
@@ -51,6 +48,10 @@ Diversity_Plots <- function(brayWmeta,newmap){
   }
   bdivplots <- names(newmap) %>% purrr::map(~bdiv(.data = brayWmeta, .column = .x))
 if("PC1pcoa" %in% colnames(brayWmeta)){
+  #PCOA <- cmdscale(d2.mes, k = 3, eig = TRUE)
+  PCOA$eig <- PCOA$eig
+  PCOA$eig <- format(round(PCOA$eig, 2), nsmall = 2)
+
   # ggplot functions for PCoAs
   bdivrare <- function(.data, .column) {
     PC1pcoa <- PC2pcoa <- PC3pcoa <- outtab <- NULL

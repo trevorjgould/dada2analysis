@@ -1,4 +1,6 @@
 ![logo](/inst/logos/Picture1.png)
+**Install**
+devtools::install_github("trevorjgould/dada2analysis")
 
 **You need the following files**
 1) seqtab output file from dada2
@@ -37,6 +39,13 @@ Create_Taxonomy_Plot(taxaout$Order,10,outtab$newmap)
 Create_Taxonomy_Plot(taxaout$Family,10,outtab$newmap)
 Create_Taxonomy_Plot(taxaout$Genus,10,outtab$newmap)
 Create_Taxonomy_Plot(taxaout$Species,10,outtab$newmap)
+
+Create_Taxonomy_Plot_Facet(taxaout$Phylum,10,outtab$newmap)
+Create_Taxonomy_Plot_Facet(taxaout$Class,10,outtab$newmap)
+Create_Taxonomy_Plot_Facet(taxaout$Order,10,outtab$newmap)
+Create_Taxonomy_Plot_Facet(taxaout$Family,10,outtab$newmap)
+Create_Taxonomy_Plot_Facet(taxaout$Genus,10,outtab$newmap)
+Create_Taxonomy_Plot_Facet(taxaout$Species,10,outtab$newmap)
 ```
 **The output from this pipeline is:**
 1) combined tables for use in analysis

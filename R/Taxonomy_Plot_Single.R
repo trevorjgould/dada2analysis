@@ -33,6 +33,14 @@ Create_Taxonomy_Plot <- function(taxtable,t,metadata){
 
     XTtax = sweep(xt, 1, rowSums(xt),'/')
     # KEEP TOP TAXA AND SORT REST INTO OTHER CATEGORY AND PLOT
+    if (ncol(XTtax) <= t){
+    XT_other = XTtax
+    }
+ 
+    # if number of columns is = or less than summary asked for (t) keep table as is. 
+    if (ncol(XTtax) <= t){
+ 		 XT_other = XTtax
+ 	}
     # get taxa that are present > t
     if (ncol(XTtax) > t){
       topt <- rownames(as.data.frame(utils::head(sort(colSums(XTtax), decreasing = TRUE), n=t)))
@@ -110,6 +118,10 @@ Create_Taxonomy_Plot_Facet <- function(taxtable,t,metadata){
     
     XTtax = sweep(xt, 1, rowSums(xt),'/')
     # KEEP TOP TAXA AND SORT REST INTO OTHER CATEGORY AND PLOT
+    if (ncol(XTtax) <= t){
+    XT_other = XTtax
+    }
+ 
     # get taxa that are present > t
     if (ncol(XTtax) > t){
         topt <- rownames(as.data.frame(utils::head(sort(colSums(XTtax), decreasing = TRUE), n=t)))

@@ -1,5 +1,6 @@
 ![logo](/inst/logos/Picture1.png)
 **Install**
+
 devtools::install_github("trevorjgould/dada2analysis")
 
 **You need the following files**

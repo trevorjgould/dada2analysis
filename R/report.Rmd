@@ -1,0 +1,127 @@
+---
+title: "Taxonomy"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    smooth_scroll: true
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dada2analysis)
+library(ggplot2)
+#library(reactable)
+#library(DT)
+#library(purrr)
+#library(tidyverse)
+
+rmd_tabsets <- function(.data) {
+
+  # first empty header to intialize tabsets
+  cat("#### { .tabset .unlisted .unnumbered}", "\n\n", sep = "")
+
+  purrr::iwalk(.data, function(.x, .y) {
+    cat("##### Taxonomy Level ", .y, "\n\n", sep = "")
+    print(.x)
+    cat("\n\n")
+  })
+  # close with empty header to stop tabsets
+  cat("#### {.unlisted .unnumbered}")
+}
+
+# LOAD TABLES
+# samples as rows, ASVs as headers
+inputtable <- readRDS("seqtab_nochim.rds")
+# ASV sequences as rows, taxonomy levels as headers
+taxa <- readRDS("taxa.rds")
+# samples as rows, metadata variables as headers
+metadata <- read.table("metadata.txt", header= TRUE, row.names = 1)
+
+outtab <- Create_Tables(inputtable,metadata,taxa)
+combined_taxa <-  outtab$combined_taxa
+taxaout <- Make_Taxa_Tables(combined_taxa)
+
+```
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+   
+### Domain
+
+```{r}
+DT::datatable(as.data.frame(taxaout[1]), options = list(scrollX=T, scrollY=T))
+```   
+  
+### Phylum
+
+```{r}
+DT::datatable(as.data.frame(taxaout[2]), options = list(scrollX=T, scrollY=T))
+```   
+ 
+
+### Class
+    
+```{r}
+DT::datatable(as.data.frame(taxaout[3]), options = list(scrollX=T, scrollY=T))
+```
+
+
+### Order
+    
+```{r}
+DT::datatable(as.data.frame(taxaout[4]), options = list(scrollX=T, scrollY=T))
+```
+
+
+### Family
+    
+```{r}
+DT::datatable(as.data.frame(taxaout[5]), options = list(scrollX=T, scrollY=T))
+```
+
+
+### Genus
+    
+```{r}
+DT::datatable(as.data.frame(taxaout[6]), options = list(scrollX=T, scrollY=T))
+```
+ 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+  
+### Phylum
+
+```{r, results='asis', echo=FALSE}
+ps <- Create_Taxonomy_Plot_Facet(taxaout$Phylum,10,outtab$newmap)
+rmd_tabsets(ps)
+```   
+ 
+### Class
+
+```{r, results='asis', echo=FALSE}
+ps <- Create_Taxonomy_Plot_Facet(taxaout$Class,10,outtab$newmap)
+rmd_tabsets(ps)
+```   
+ 
+### Order
+
+```{r, results='asis', echo=FALSE}
+ps <- Create_Taxonomy_Plot_Facet(taxaout$Order,10,outtab$newmap)
+rmd_tabsets(ps)
+```   
+ 
+### Family
+
+```{r, results='asis', echo=FALSE}
+ps <- Create_Taxonomy_Plot_Facet(taxaout$Family,10,outtab$newmap)
+rmd_tabsets(ps)
+```   
+ 
+### Genus
+
+```{r, results='asis', echo=FALSE}
+ps <- Create_Taxonomy_Plot_Facet(taxaout$Genus,10,outtab$newmap)
+rmd_tabsets(ps)
+```   

@@ -1,4 +1,4 @@
-Package: dada2analysis
+Package: dada2analysisEV
 Type: Package
 Title: Dada2 ASV Marker Gene Analysis
 Version: 0.3.0

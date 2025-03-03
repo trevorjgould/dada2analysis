@@ -35,6 +35,9 @@ newtable2 <- newtable1[common,, drop = FALSE]
 both <- cbind(newtable2,taxa2)
 both <- as.data.frame(both)
 
+  c1 <- colnames(both)
+  r1 <- rownames(both)
+
 # replacing NA with Unknown higher level taxa
 both$Phylum <- ifelse(is.na(both$Phylum), paste0("Unknown ",both$Kingdom), both$Phylum)
 both$Class <- ifelse(is.na(both$Class), paste0("Unknown ",both$Phylum), both$Class)
@@ -47,7 +50,10 @@ if("Species" %in% colnames(both)){
 both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
 both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
 both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
-row.names(both) <- row.names(newtable1)
+
+  rownames(both) <- r1
+  colnames(both) <- c1
+  
 #save to file
 write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE)
 # check that sizes of input and output are the same

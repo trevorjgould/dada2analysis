@@ -94,12 +94,12 @@ Create_Tables_18S <- function(inputtable,metadata,taxa){
   both <- cbind(newtable2,taxa2)
   both <- as.data.frame(both)
   
-  # replacing NA with Unknown higher level taxa
+ # replacing NA with Unknown higher level taxa
   both$Domain <- ifelse(is.na(both$Domain), paste0("Unknown ",both$Domain), both$Domain)
-  both$Supergroup <- ifelse(is.na(both$Supergroup), paste0("Unknown ",both$Supergroup), both$Supergroup)
-  both$Division <- ifelse(is.na(both$Division), paste0("Unknown ",both$Division), both$Division)
-  both$Subdivision <- ifelse(is.na(both$Subdivision), paste0("Unknown ",both$Subdivision), both$Subdivision)
-  both$Class <- ifelse(is.na(both$Class), paste0("Unknown ",both$Phylum), both$Class)
+  both$Supergroup <- ifelse(is.na(both$Supergroup), paste0("Unknown ",both$Domain), both$Supergroup)
+  both$Division <- ifelse(is.na(both$Division), paste0("Unknown ",both$Supergroup), both$Division)
+  both$Subdivision <- ifelse(is.na(both$Subdivision), paste0("Unknown ",both$Division), both$Subdivision)
+  both$Class <- ifelse(is.na(both$Class), paste0("Unknown ",both$Subdivision), both$Class)
   both$Order <- ifelse(is.na(both$Order), paste0("Unknown ",both$Class), both$Order)
   both$Family <- ifelse(is.na(both$Family), paste0("Unknown ",both$Order), both$Family)
   both$Genus <- ifelse(is.na(both$Genus), paste0("Unknown ",both$Family), both$Genus)

@@ -78,8 +78,8 @@ Create_Tables_18S <- function(inputtable,metadata,taxa){
   
   # check if sampleID starts with a number and if so add an S to the start.
   #if(is.numeric(substring(common[[1]], 1, 1))){
-  #rownames(newmap) <- paste0("S",common)
-  #rownames(newtable) <- paste0("S",common)
+  rownames(newmap) <- paste0("S",common)
+  rownames(newtable) <- paste0("S",common)
   #}
   #save to file
   saveRDS(newtable, file = "Sequence_table_common.rds")
@@ -94,6 +94,9 @@ Create_Tables_18S <- function(inputtable,metadata,taxa){
   both <- cbind(newtable2,taxa2)
   both <- as.data.frame(both)
   
+  c1 <- colnames(both)
+  r1 <- rownames(both)
+
  # replacing NA with Unknown higher level taxa
   both$Domain <- ifelse(is.na(both$Domain), paste0("Unknown ",both$Domain), both$Domain)
   both$Supergroup <- ifelse(is.na(both$Supergroup), paste0("Unknown ",both$Domain), both$Supergroup)
@@ -107,7 +110,10 @@ Create_Tables_18S <- function(inputtable,metadata,taxa){
   both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
   both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
   both <- data.frame(lapply(both, function(x) {gsub("Unknown Unknown", "Unknown", x)}))
-  row.names(both) <- row.names(newtable1)
+
+  rownames(both) <- r1
+  colnames(both) <- c1
+  
   #save to file
   write.table(both, file = "combined_sequences_taxa.txt", sep = "\t", quote = FALSE)
   # check that sizes of input and output are the same

@@ -13,35 +13,35 @@ Diversity_Plots <- function(brayWmeta,newmap){
   # newmap <- read.table("Metadata_common.txt")
   var_explained = (brayWmeta$EV/sum(brayWmeta$EV))*100
   var_explained = format(round(var_explained, 2), nsmall = 2)
-
-  Adiv <- function(.data, .column) {
+  
+Adiv <- function(.data, .column) {
     shannon <- simpson <- chao1 <- NULL
-    ShanD <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), shannon, colour = as.factor(!!dplyr::sym(.column)))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
-    SimD <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), simpson, colour = as.factor(!!dplyr::sym(.column)))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
-    SimI <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), chao1, colour = as.factor(!!dplyr::sym(.column)))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) + ggpubr::stat_compare_means()
+    ShanD <- ggplot2::ggplot(.data, ggplot2::aes(as.factor(!!dplyr::sym(.column)), shannon, colour = as.factor(!!dplyr::sym(.column)))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
+    SimD <- ggplot2::ggplot(.data, ggplot2::aes(as.factor(!!dplyr::sym(.column)), simpson, colour = as.factor(!!dplyr::sym(.column)))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
+    SimI <- ggplot2::ggplot(.data, ggplot2::aes(as.factor(!!dplyr::sym(.column)), chao1, colour = as.factor(!!dplyr::sym(.column)))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.title.x = ggplot2::element_blank(), axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) + ggpubr::stat_compare_means() + ggplot2::labs(colour = colnames(.column))
     combinded_plot <- patchwork::wrap_plots(ShanD, SimD, SimI, ncol=1)
     plottitle <- paste0("AlphaDiversity_",.column,".png")
     ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
-  }
-  Adivplots <- names(newmap) %>% purrr::map(~Adiv(.data = brayWmeta, .column = .x))
+}
+Adivplots <- names(newmap) %>% purrr::map(~Adiv(.data = brayWmeta, .column = .x))
 
-  Adivnolegend <- function(.data, .column) {
-    shannon <- simpson <- chao1 <- NULL
-    ShanD <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), shannon, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
-    SimD <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), simpson, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
-    SimI <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), chao1, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
-    combinded_plot <- patchwork::wrap_plots(ShanD, SimD, SimI, ncol=1)
-    plottitle <- paste0("AlphaDiversity_",.column,"nolegend.png")
-    ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
-  }
-  Adivplots <- names(newmap) %>% purrr::map(~Adivnolegend(.data = brayWmeta, .column = .x))
+  #Adivnolegend <- function(.data, .column) {
+  #  shannon <- simpson <- chao1 <- NULL
+  #  ShanD <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), shannon, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Shannon") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
+  #  SimD <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), simpson, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Simpson") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
+ #   SimI <- ggplot2::ggplot(.data, ggplot2::aes(!!dplyr::sym(.column), chao1, colour = !!dplyr::sym(.column))) + ggplot2::geom_boxplot(outlier.shape = NA) + ggplot2::geom_point(position=ggplot2::position_jitterdodge(),alpha=0.3)+ ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA") + ggplot2::ylab("Chao1") + ggplot2::theme(axis.title.x=ggplot2::element_blank(), axis.text.x=ggplot2::element_blank(),axis.ticks.x=ggplot2::element_blank()) + ggpubr::stat_compare_means()
+ #   combinded_plot <- patchwork::wrap_plots(ShanD, SimD, SimI, ncol=1)
+ #   plottitle <- paste0("AlphaDiversity_",.column,"nolegend.png")
+ #   ggplot2::ggsave(combinded_plot, file=plottitle, dpi=800, height = 12, width = 6, units = "in")
+ # }
+ # Adivplots <- names(newmap) %>% purrr::map(~Adivnolegend(.data = brayWmeta, .column = .x))
 
 
   # ggplot functions for PCAs
   bdiv <- function(.data, .column) {
     PC1 <- PC2 <- PC3 <- outtab <- NULL
-    PC1PC2 <- ggplot2::ggplot(.data, ggplot2::aes(PC1,PC2, colour = !!dplyr::sym(.column))) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC2: ",(var_explained[2]), "% variance"))
-    PC1PC3 <- ggplot2::ggplot(.data, ggplot2::aes(PC1,PC3, colour = !!dplyr::sym(.column))) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC3: ",(var_explained[3]), "% variance"))
+    PC1PC2 <- ggplot2::ggplot(.data, ggplot2::aes(PC1,PC2, colour = as.factor(!!dplyr::sym(.column)))) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "NA")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC2: ",(var_explained[2]), "% variance")) + ggplot2::labs(colour = colnames(.column))
+    PC1PC3 <- ggplot2::ggplot(.data, ggplot2::aes(PC1,PC3, colour = as.factor(!!dplyr::sym(.column)))) + ggplot2::geom_point(size=2) + ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom")  + ggplot2::xlab(paste0("PC1: ",(var_explained[1]), "% variance")) + ggplot2::ylab(paste0("PC3: ",(var_explained[3]), "% variance")) + ggplot2::labs(colour = colnames(.column))
     combinded_plot2 <- patchwork::wrap_plots(PC1PC2, PC1PC3, ncol=1)
     plottitle <- paste0("PCA_PC12_PC13_continuous",.column,".png")
     ggplot2::ggsave(combinded_plot2, file=plottitle, dpi=800, height = 8, width = 6, units = "in")
